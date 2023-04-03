@@ -1,0 +1,71 @@
+import jenkins
+
+jenkins_server_url = "https://jenkins.zhito.com"
+user_id = "wangshiyuan"
+api_token = "11bdffee022bd22472efdf2ebd99354522"
+server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
+job = "integration_test3"
+
+config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
+<flow-definition plugin=\"workflow-job@1282.ve6d865025906\">\
+  <description></description>\
+  <keepDependencies>false</keepDependencies>\
+  <properties>\
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin=\"gitlab-plugin@1.7.8\">\
+      <gitLabConnection>zhito-gitlab</gitLabConnection>\
+      <jobCredentialId></jobCredentialId>\
+      <useAlternativeCredential>false</useAlternativeCredential>\
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>\
+  </properties>\
+  <definition class=\"org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition\" plugin=\"workflow-cps@3641.vf58904a_b_b_5d8\">\
+    <script></script>\
+    <sandbox>true</sandbox>\
+  </definition>\
+  <triggers/>\
+  <disabled>false</disabled>\
+</flow-definition>"
+
+# 创建job
+# server.create_job(job, config_xml=config_xml)
+
+# 获取job配置，job名需要包含路径
+# config = server.get_job_config("gerrit_zhito-L4/adm")
+# print(config)
+
+job_info = server.get_job_info(job)
+print("\njob_info:", job_info)
+
+# 查询下一次build的number
+nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
+print("\nextBuildNumber: ", nextBuildNumber)
+
+# # 构建job
+# # build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
+# build_id = server.build_job(job)
+# print("\nbuild_id: ", build_id) #16581
+
+# item = server.get_queue_item(number=build_id)
+# print("\nqueue item:", item)
+
+# 查询job最后一次build的number
+build_number = server.get_job_info(job)['lastBuild']['number']
+print("\nbuild_number: ", build_number)
+
+# 查询build状态及结果
+build_info = server.get_build_info(job, build_number)
+print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n", build_info)
+
+#  办法：
+#  1.build前假定该次build_number = nextBuildNumber, 记录queueId
+#  2.查询build_info前, 先查询lastbuildNumber, 
+#    2.1 lastBuildNumber < build_number, 直接返回, 认为build进行中
+#    2.2 lastBuildNumber >= build_number时, 查询buildInfo
+#    2.3 比较buildInfo.queueId和记录的queueId
+#    2.4 如果相等,返回buildInfo
+#    2.5 如果不相等, build_number = build_number + 1, 重复执行步骤2
+#  tips:build之后不能立即查询到build_number,等待时间不确定
+
+nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
+print("\nnext_build_number：", nextBuildNumber)
+build_info = server.get_build_info(job, nextBuildNumber)
+print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], build_info["url"])
