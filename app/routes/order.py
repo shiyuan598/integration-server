@@ -1,9 +1,10 @@
 # coding=utf8
 # 订单相关
 from flask import Blueprint, request, jsonify
-from Model import Module, Load, Order, User, Order_state
+from Model import Module, Load, Order, User
 from sqlalchemy import func, and_, or_, not_, text, asc, desc
 from sqlalchemy.orm import aliased
+from app.Model import Process_state
 from common.utils import generateEntries
 from common.sms import sendMessage
 from enum import Enum
@@ -51,8 +52,8 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
                 Order.approver == T.id,
                 isouter = True
             ).join(
-                Order_state,
-                Order.state == Order_state.state,
+                Process_state,
+                Order.state == Process_state.state,
                 isouter = True
             )
             if subscriber != "":
@@ -66,7 +67,7 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
                             Order.starttime.like("{}%".format(name)),
                             Order.endtime.like("{}%".format(name)),
                             Order.address.like("{}%".format(name)),
-                            Order_state.name.like("%{}%".format(name)),
+                            Process_state.name.like("%{}%".format(name)),
                             S.name.like("%{}%".format(name)),
                             T.name.like("%{}%".format(name))
                         ),
@@ -82,7 +83,7 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
                         Order.starttime.like("{}%".format(name)),
                         Order.endtime.like("{}%".format(name)),
                         Order.address.like("{}%".format(name)),
-                        Order_state.name.like("%{}%".format(name)),
+                        Process_state.name.like("%{}%".format(name)),
                         S.name.like("%{}%".format(name)),
                         T.name.like("%{}%".format(name))
                     )
@@ -102,7 +103,7 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
             Order.address, Order.purpose, Order.route, Load.name.label("load"),
             func.date_format(func.date_add(Order.createtime, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i').label("createTime"),
             func.date_format(func.date_add(Order.updatetime, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i').label("updateTime"),
-            T.name.label("approver"), U.name.label("driver"), U.telephone.label("driverPhone"), Order.state, Order_state.name.label("stateName"),
+            T.name.label("approver"), U.name.label("driver"), U.telephone.label("driverPhone"), Order.state, Process_state.name.label("stateName"),
             Order.comment, Order.desc
         ).join(
             Module,
@@ -125,8 +126,8 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
             Order.driver == U.id,
             isouter = True
         ).join(
-            Order_state,
-            Order.state == Order_state.state,
+            Process_state,
+            Order.state == Process_state.state,
             isouter = True
         )
         if id != "":
@@ -161,7 +162,7 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
                                 Order.starttime.like("{}%".format(name)),
                                 Order.endtime.like("{}%".format(name)),
                                 Order.address.like("{}%".format(name)),
-                                Order_state.name.like("%{}%".format(name)),
+                                Process_state.name.like("%{}%".format(name)),
                                 S.name.like("%{}%".format(name)),
                                 T.name.like("%{}%".format(name))
                             ),
@@ -178,7 +179,7 @@ def searchOrder(id="", name="", driver="", subscriber="", orderField="", orderSe
                             Order.starttime.like("{}%".format(name)),
                             Order.endtime.like("{}%".format(name)),
                             Order.address.like("{}%".format(name)),
-                            Order_state.name.like("%{}%".format(name)),
+                            Process_state.name.like("%{}%".format(name)),
                             S.name.like("%{}%".format(name)),
                             T.name.like("%{}%".format(name))
                         )
@@ -259,7 +260,7 @@ def orderPresent():
             func.date_format(Order.starttime, '%Y-%m-%d %H:%i').label("startTime"),
             func.date_format(Order.endtime, '%Y-%m-%d %H:%i').label("endTime"),
             func.concat(func.date_format(Order.starttime, '%m-%d %H:%i'), ' - ', func.date_format(Order.endtime, '%m-%d %H:%i')).label("useTime"),
-            User.name, User.username, User.telephone, Order.state, Order_state.name.label("stateName"),
+            User.name, User.username, User.telephone, Order.state, Process_state.name.label("stateName"),
             Module.name.label("module")
         ).join(
             User,
@@ -270,8 +271,8 @@ def orderPresent():
             Order.module == Module.id,
             isouter = True
         ).join(
-            Order_state,
-            Order.state == Order_state.state,
+            Process_state,
+            Order.state == Process_state.state,
             isouter = True 
         ).filter(and_(
             Order.vehicleId == vehicleId,

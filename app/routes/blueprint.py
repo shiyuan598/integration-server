@@ -11,5 +11,5 @@ def registerRoute(app):
     app.register_blueprint(project, url_prefix=BASE_URL_PREFIX + "/project")
 
     # gitlab、jenkins、artifactory
-    from .tool import tool
-    app.register_blueprint(tool, url_prefix=BASE_URL_PREFIX)
+    from .tools import tools
+    app.register_blueprint(tools, url_prefix=BASE_URL_PREFIX)

@@ -3,8 +3,8 @@ from sqlalchemy.orm import class_mapper
 from exts import db
 
 # 订单状态
-class Order_state(db.Model):
-    __tablename__ = 'order_state'
+class Process_state(db.Model):
+    __tablename__ = 'process_state'
     id = Column(Integer, primary_key=True, autoincrement=True)
     state = Column(Integer, nullable=False)
     name = Column(String(50))

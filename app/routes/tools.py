@@ -9,10 +9,10 @@ from sqlalchemy import func, text, and_, or_, asc, desc
 from exts import db
 session = db.session
 
-tool = Blueprint("tool", __name__)
+tools = Blueprint("tools", __name__)
 
 # 拉取gitlab分支
-@tool.route('/gitlab/branch', methods=["GET"])
+@tools.route('/gitlab/branch', methods=["GET"])
 def branch():
     try:
         project = request.args.get("project_name_with_namespace", "")
@@ -22,7 +22,7 @@ def branch():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 拉取gitlab的Tag
-@tool.route('/gitlab/tag', methods=["GET"])
+@tools.route('/gitlab/tag', methods=["GET"])
 def tag():
     try:
         project = request.args.get("project_name_with_namespace", "")
@@ -32,7 +32,7 @@ def tag():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 拉取gitlab多个项目的分支和Tag
-@tool.route('/gitlab/multiple/branch_tag', methods=["GET"])
+@tools.route('/gitlab/multiple/branch_tag', methods=["GET"])
 def branch_tag():
     try:
         projects = request.args.getlist("projects")
@@ -42,7 +42,7 @@ def branch_tag():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 拉取gitlab多个项目的分支和Tag，一次性查询所有项目，再逐个比对，效率低
-@tool.route('/gitlab/multiple/branch_tag2', methods=["GET"])
+@tools.route('/gitlab/multiple/branch_tag2', methods=["GET"])
 def branch_tag2():
     try:
         projects = request.args.getlist("projects")
@@ -52,7 +52,7 @@ def branch_tag2():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 触发jenkins构建
-@tool.route('/jenkins/build_job', methods=["GET", "POST"])
+@tools.route('/jenkins/build_job', methods=["GET", "POST"])
 def build_job():
     try:
         # process_type = request.json.get("process_type", "0")
@@ -83,7 +83,7 @@ def build_job():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 查询jenkins构建任务的状态
-@tool.route('/jenkins/build_info', methods=["GET", "POST"])
+@tools.route('/jenkins/build_info', methods=["GET", "POST"])
 def build_info():
     try:
         # process_type = request.json.get("process_type", "0")

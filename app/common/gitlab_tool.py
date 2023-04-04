@@ -82,7 +82,7 @@ def getBranchesTagsOfMultiProjects(project_names):
             tags = []
             for tag in project.tags.list():
                 tags.append(tag.name)
-            result[project.name] = {
+            result[project_name_with_namespace] = {
                 "branch": branches,
                 "tag": tags
             }
