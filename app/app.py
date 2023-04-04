@@ -12,14 +12,15 @@ from routes.blueprint import registerRoute
 app = Flask(__name__)
 app.config.from_object('config.setting')
 db.init_app(app)
-# 创建所有的表
-db.create_all(app=app)
 
 # 全局允许跨域
 CORS(app, supports_credentials=True)
 
 # 注册路由
 registerRoute(app)
+
+# 创建所有的表，需要放在路由后面
+db.create_all(app=app)
 
 
 @app.route('/')

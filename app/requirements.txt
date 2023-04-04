@@ -7,7 +7,6 @@ pyartifactory
 python-jenkins
 flask-ldap3-login
 flask-sqlalchemy
-gevent
 tencentcloud-sdk-python
 tencentcloud-sdk-python-sms
 gunicorn==19.7.1

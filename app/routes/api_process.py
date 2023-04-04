@@ -9,7 +9,7 @@ session = db.session
 
 api_process = Blueprint("api_process", __name__)
 
-# 查询最新的8条公告
+# 接口集成流程列表
 @api_process.route('/list', methods=["GET"])
 def search():
     try:
@@ -30,8 +30,9 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Api_process.id, Api_process.project, Api_process.build_type, Api_process.version, Api_process.release_note, 
-        Api_process.creator, Api_process.modules, Api_process.state,
+        query = session.query(Api_process.id, Api_process.project, Api_process.build_type, Api_process.version, Api_process.release_note,
+        Api_process.job_name, Api_process.build_queue, Api_process.build_number, Api_process.jenkins_url, Api_process.artifactory_url,
+        Api_process.creator, Api_process.modules, Api_process.state, Api_process.desc,
         func.date_format(func.date_add(Api_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Api_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).filter(or_(
@@ -49,39 +50,78 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "project", "build_type", "version", "release_note", "creator", "modules", "state", "create_time", "update_time"], result)
+        data = generateEntries(["id", "project", "build_type", "version", "release_note", "job_name", "build_queue", "build_number",
+        "jenkins_url", "artifactory_url", "creator", "modules", "state", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# # 添加公告
-# @notice.route('/add', methods=["POST"])
-# def add():
-#     try:
-#         title = request.json.get("title")
-#         content = request.json.get("content")
-#         expire = request.json.get("expire")
-#         data = Notice(title=title, content=content, expire=expire)
-#         session.add(data)
-#         session.commit()
-#         session.close()
-#         return jsonify({"code": 0, "msg": "成功"})
-#     except Exception as e:
-#         session.rollback()
-#         return jsonify({"code": 1, "msg": str(e)})
+# 创建接口集成
+@api_process.route('/create', methods=["POST"])
+def create():
+    try:
+        project = request.json.get("project")
+        version = request.json.get("version")
+        build_type = request.json.get("build_type")
+        release_note = request.json.get("release_note")
+        job_name = request.json.get("job_name")
+        modules = request.json.get("modules")
+        creator = request.json.get("creator")
+        data = Api_process(project=project, version=version, build_type=build_type, release_note=release_note, 
+        job_name=job_name, modules=modules, creator=creator)
+        session.add(data)
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
 
-# # 删除公告
-# @notice.route('/delete', methods=["POST", "DELETE"])
-# def delete():
-#     try:
-#         id = request.json.get("id")      
-#         session.query(Notice).filter(Notice.id == id).update({
-#             "isDel": 1
-#         })  
-#         session.commit()
-#         session.close()
-#         return jsonify({"code": 0, "msg": "成功"})
-#     except Exception as e:
-#         session.rollback()
-#         return jsonify({"code": 1, "msg": str(e)})
+
+# 编辑接口集成
+@api_process.route('/edit', methods=["POST"])
+def edit():
+    try:
+        id = request.json.get("id")
+        project = request.json.get("project")
+        version = request.json.get("version")
+        build_type = request.json.get("build_type")
+        release_note = request.json.get("release_note")
+        job_name = request.json.get("job_name")
+        modules = request.json.get("modules")
+        state = request.json.get("state")
+        session.query(Api_process).filter(Api_process.id == id).update({
+            "project": project,
+            "version": version,
+            "build_type": build_type,
+            "release_note": release_note,
+            "job_name": job_name,
+            "modules": modules,
+            "state": int(state)
+        })
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
+
+
+# 更新接口集成中的模块配置
+@api_process.route('/update_module', methods=["POST"])
+def update_module():
+    try:
+        id = request.json.get("id")
+        modules = request.json.get("modules")
+        state = request.json.get("state")
+        session.query(Api_process).filter(Api_process.id == id).update({           
+            "modules": modules,
+            "state": int(state) # 所有模块信息填写完整后状态为已就绪
+        })
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})

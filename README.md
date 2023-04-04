@@ -13,8 +13,13 @@ pip3 install -i https://mirrors.tencent.com/pypi/simple/ --upgrade tencentcloud-
 腾讯云账户管理[地址(https://console.cloud.tencent.com/smsv2)]
 
 2.启动
+开发环境
 ```bash
 python3 app.py
+```
+生产环境使用gunicorn
+```bash
+nohup gunicorn -c gunicorn.conf app:app > log_info.log 0<&1 2>&1 &
 ```
 
 ##### 文档
@@ -29,3 +34,7 @@ https://confluence.zhito.com:8090/rest/api/space/JSZSZX
 https://gitlab.zhito.com/api/v4/projects
 https://artifactory.zhito.com/artifactory/api/repositories
 https://jenkins.zhito.com/api/
+
+
+#### 测试api
+http://127.0.0.1:9002/api/gitlab/tag?project_name_with_namespace=ai/perception_camera

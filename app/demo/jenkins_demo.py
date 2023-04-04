@@ -58,7 +58,7 @@ print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["
 #  办法：
 #  1.build前假定该次build_number = nextBuildNumber, 记录queueId
 #  2.查询build_info前, 先查询lastbuildNumber, 
-#    2.1 lastBuildNumber < build_number, 直接返回, 认为build进行中
+#    2.1 lastBuildNumber < build_number, 直接返回, 认为build进行中, 需要等一会再查询
 #    2.2 lastBuildNumber >= build_number时, 查询buildInfo
 #    2.3 比较buildInfo.queueId和记录的queueId
 #    2.4 如果相等,返回buildInfo
