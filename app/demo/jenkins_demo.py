@@ -4,7 +4,7 @@ jenkins_server_url = "https://jenkins.zhito.com"
 user_id = "wangshiyuan"
 api_token = "11bdffee022bd22472efdf2ebd99354522"
 server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
-job = "integration_test3"
+job = "integration_test4"
 
 config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
 <flow-definition plugin=\"workflow-job@1282.ve6d865025906\">\
@@ -39,10 +39,10 @@ print("\njob_info:", job_info)
 nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
 print("\nextBuildNumber: ", nextBuildNumber)
 
-# # 构建job
-# # build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
+# 构建job
+build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
 # build_id = server.build_job(job)
-# print("\nbuild_id: ", build_id) #16581
+print("\nbuild_id: ", build_id) #16581
 
 # item = server.get_queue_item(number=build_id)
 # print("\nqueue item:", item)

@@ -37,4 +37,9 @@ https://jenkins.zhito.com/api/
 
 
 #### 测试api
+获取单个git项目的分支和tag
 http://127.0.0.1:9002/api/gitlab/tag?project_name_with_namespace=ai/perception_camera
+
+一次性获取多个git项目的分支和tag
+http://127.0.0.1:9002/api/gitlab/multiple/branch_tag2?projects=ai/perception_camera,ai/planning_lattice
+

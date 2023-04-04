@@ -60,7 +60,7 @@ def getBranchesTagsOfMultiProjects2(project_names):
                 }
         end = time.clock()
         runTime = end - start
-        print("\n method 1 run time:", runTime)
+        print("\n getBranchesTagsOfMultiProjects2 run time:", runTime)
         return result
     except Exception as e:
       print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e))
@@ -88,7 +88,7 @@ def getBranchesTagsOfMultiProjects(project_names):
             }
         end = time.clock()
         runTime = end - start
-        print("\n method 2 run time:", runTime)
+        print("\n getBranchesTagsOfMultiProjects method run time:", runTime)
         return result
     except Exception as e:
       print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e))
