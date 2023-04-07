@@ -9,7 +9,7 @@ class App_process(db.Model):
     project = Column(String(50), nullable=False, comment="项目")
     build_type = Column(String(50), nullable=False, comment="构建类型")
     version = Column(String(50), nullable=False, comment="版本号")
-    api_version = Column(String(50), nullable=False, comment="接口版本号")
+    api_version = Column(String(50), comment="接口版本号")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     creator = Column(String(50), nullable=False, comment="创建者")

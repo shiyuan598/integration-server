@@ -80,13 +80,14 @@ def create():
         project = request.json.get("project")
         version = request.json.get("version")
         build_type = request.json.get("build_type")
-        api_version = request.json.get("api_version")
+        # api_version = request.json.get("api_version")
+        desc = request.json.get("desc")
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
         creator = request.json.get("creator")
         type = request.json.get("type")
         state = int(request.json.get("state"))
-        data = App_process(project=project, version=version, build_type=build_type, api_version=api_version, 
+        data = App_process(project=project, version=version, build_type=build_type, 
         job_name=job_name, modules=modules, creator=creator, type=type, state=state)
         session.add(data)
         session.commit()

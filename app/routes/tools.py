@@ -59,7 +59,7 @@ def build_job():
         process_type = int(request.json.get("process_type", 0))
         process_id = int(request.json.get("process_id", 0))
         job = request.json.get("job", "integration_test4")
-        parameters = request.json.get("parameter", {"username": "yhifif", "date": "2023-04-20"})
+        parameters = request.json.get("parameters", {"username": "yhifif", "date": "2023-04-20"})
         data = build(job, parameters)
         print("\n process_type, type(process_type):", process_type, type(process_type))
         # data = build("integration_test4", {"username": "yhdodo", "date": "2023-04-20"})

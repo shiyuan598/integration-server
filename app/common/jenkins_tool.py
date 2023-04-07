@@ -8,6 +8,8 @@ server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
 # 构建job
 def build(job, parameters):
     try:
+        job = "integration_test4"
+        print("参数：", parameters)
         # 查询下一次build的number
         nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
         print("\nextBuildNumber: ", nextBuildNumber)

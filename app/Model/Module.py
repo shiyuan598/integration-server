@@ -8,7 +8,7 @@ class Module(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     project = Column(String(50), nullable=False, comment="项目")
     name = Column(String(50), nullable=False, comment="名称")
-    type = Column(Integer, nullable=False, server_default="0", comment="集成类型，0：接口集成，1：应用集成")
+    type = Column(Integer, nullable=False, server_default="0", comment="集成类型，0：base，1：接口集成，2：应用集成")
     git = Column(String(50), nullable=False, comment="git")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)

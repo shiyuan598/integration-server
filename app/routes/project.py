@@ -52,7 +52,7 @@ def search():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 某项目下的所有模块(不分页)
+# 所有项目(不分页)
 @project.route('/list_all', methods=["GET"])
 def search_all():
     try:
@@ -88,8 +88,9 @@ def modules(project_id):
         # 查询分页数据
         query = session.query(Module.id, Module.name, Module.git, Module.owner, Module.desc,
         Module.type, case(
-                (Module.type == 0, "接口"),
-                (Module.type == 1, "应用")
+                (Module.type == 0, "Base"),
+                (Module.type == 1, "接口"),
+                (Module.type == 2, "应用")
         ).label("type_name"),
         func.date_format(func.date_add(Module.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
@@ -112,10 +113,25 @@ def modules(project_id):
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
+# 某项目下的所有模块(不分页)
+@project.route('/<int:project_id>/module_all', methods=["GET"])
+def modules_all(project_id):
+    try:
+        # 接收参数
+        project_id = request.view_args['project_id']
+        # 查询所有数据
+        query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner).filter(Module.project == project_id)
+        result = query.all()
+        session.close()
+        data = generateEntries(["id", "name", "type", "git", "owner"], result)
+        return jsonify({"code": 0, "data": data, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
 
 # 某项目下同一类型的所有模块(不分页)
-@project.route('/<int:project_id>/module_all/<int:type>', methods=["GET"])
-def modules_all(project_id, type=0):
+@project.route('/<int:project_id>/module_type_all/<int:type>', methods=["GET"])
+def modules_all_type(project_id, type=0):
     try:
         # 接收参数
         project_id = request.view_args['project_id']
