@@ -3,6 +3,7 @@
 from flask import Blueprint, request, jsonify
 from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects, getBranchesTagsOfMultiProjects2
 from common.jenkins_tool import build, get_build_info
+from common.artifactory_tool import getAllFiles, getUri
 
 from Model import Api_process, App_process
 from sqlalchemy import func, text, and_, or_, asc, desc
@@ -107,3 +108,25 @@ def build_info():
 #    2.4 如果相等,返回buildInfo
 #    2.5 如果不相等, build_number = build_number + 1, 重复执行步骤2
 #  tips:build之后不能立即查询到build_number,等待时间不确定
+
+# 查询artifactory目录下的文件
+@tools.route('/artifacts/files', methods=["GET"])
+def artifacts_files():
+    try:
+        path = request.args.get("path", "GSL2/test/x86/1.0.0")
+        data = getAllFiles(path)
+
+        return jsonify({"code": 0, "data": data, "msg": "成功"})
+    except Exception as e:
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 查询artifactory目录下的文件
+@tools.route('/artifacts/uri', methods=["GET"])
+def artifacts_uri():
+    try:
+        path = request.args.get("path", "GSL2/test/x86/1.0.0")
+        data = getUri(path)
+
+        return jsonify({"code": 0, "data": data, "msg": "成功"})
+    except Exception as e:
+        return jsonify({"code": 1, "msg": str(e)})

@@ -2,7 +2,7 @@
 # 项目管理
 from flask import Blueprint, request, jsonify
 from Model import Project, Module
-from sqlalchemy import func, text, and_, or_, asc, desc
+from sqlalchemy import func, text, and_, or_, asc, desc, case
 from common.utils import generateEntries
 from exts import db
 session = db.session
@@ -29,7 +29,7 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.owner, Project.desc,
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner, Project.desc,
         func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).filter(or_(
@@ -46,7 +46,7 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "owner", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -57,10 +57,10 @@ def search():
 def search_all():
     try:
         # 查询所有数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name)
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -87,6 +87,10 @@ def modules(project_id):
 
         # 查询分页数据
         query = session.query(Module.id, Module.name, Module.git, Module.owner, Module.desc,
+        Module.type, case(
+                (Module.type == 0, "接口"),
+                (Module.type == 1, "应用")
+        ).label("type_name"),
         func.date_format(func.date_add(Module.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).filter(or_(
@@ -102,24 +106,24 @@ def modules(project_id):
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "git", "owner", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "name", "git", "owner", "desc", "type", "type_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
 
-# 某项目下的所有模块(不分页)
-@project.route('/<int:project_id>/module_all', methods=["GET"])
-def modules_all(project_id):
+# 某项目下同一类型的所有模块(不分页)
+@project.route('/<int:project_id>/module_all/<int:type>', methods=["GET"])
+def modules_all(project_id, type=0):
     try:
         # 接收参数
         project_id = request.view_args['project_id']
         # 查询所有数据
-        query = session.query(Module.id, Module.name, Module.git).filter(Module.project == project_id)
+        query = session.query(Module.id, Module.name, Module.git, Module.owner).filter(and_(Module.project == project_id, Module.type == type))
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "git"], result)
+        data = generateEntries(["id", "name", "git", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

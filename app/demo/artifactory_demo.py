@@ -6,13 +6,16 @@ api_key = "AKCp8nzqQaRKVZGfYHimkQh9FK3FHq2mkaaRtgJZhjaeYL71aUXU3RTJbFBjNTT9CqNoM
 
 art = Artifactory(url=url, auth=(username, api_key), api_version=1)
 
+arts = art.artifacts.info("GSL2/test/x86")
+print("info", arts, "\n\n\n")
+
 # print(art)
 # repo = art.repositories.get_repo("GSL2")
 # print(repo)
-arts = art.artifacts.list("GSL2/test/x86/1.0.0")
-print(arts, type(arts), arts.uri, arts.files)
+arts = art.artifacts.list("GSL2/test/x86", recursive=False, list_folders=False)
+print(arts, type(arts), arts.uri, arts.files, "\n\n dfdf")
 for file in arts.files:
-    print("file uri:", file.uri)
+    print("file uri:", file)
 # users=art.groups.list()
 
 # repo = repositories.get("GSL2")
