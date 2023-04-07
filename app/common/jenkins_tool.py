@@ -47,7 +47,7 @@ def get_build_info(job, build_number, build_queue):
                 return get_build_info(job, build_number + 1, build_queue)
 
     except Exception as e:
-      print('An exception occurred in jenkins build', str(e))
+      print('An exception occurred in jenkins get_build_info', str(e))
 
 #  办法：
 #  1.build前假定该次build_number = nextBuildNumber, 记录queueId

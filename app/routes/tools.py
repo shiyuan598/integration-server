@@ -53,34 +53,38 @@ def branch_tag2():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 触发jenkins构建
-@tools.route('/jenkins/build_job', methods=["GET", "POST"])
+@tools.route('/jenkins/build_job', methods=["POST"])
 def build_job():
     try:
-        # process_type = request.json.get("process_type", "0")
-        # process_id = request.json.get("process_id", "0")
-        # job = request.json.get("job", "integration_test4")
-        # parameters = request.json.get("parameter", {"username": "yhifif", "date": "2023-04-20"})
-        # data = build(job, parameters)
-        data = build("integration_test4", {"username": "yhifif", "date": "2023-04-20"})
+        process_type = int(request.json.get("process_type", 0))
+        process_id = int(request.json.get("process_id", 0))
+        job = request.json.get("job", "integration_test4")
+        parameters = request.json.get("parameter", {"username": "yhifif", "date": "2023-04-20"})
+        data = build(job, parameters)
+        print("\n process_type, type(process_type):", process_type, type(process_type))
+        # data = build("integration_test4", {"username": "yhdodo", "date": "2023-04-20"})
         # 更新集成流程中的build_number, build_queue
-        # if process_type == "0":
-        #     session.query(Api_process).filter(Api_process.id == process_id).update({           
-        #         "build_number": data["build_number"],
-        #         "build_queue": data["build_queue"],
-        #         "state": 2 # 进行中
-        #     })
-        # else:
-        #     if process_type == "1":
-        #         session.query(App_process).filter(App_process.id == process_id).update({           
-        #             "build_number": data["build_number"],
-        #             "build_queue": data["build_queue"],
-        #             "state": 2 # 进行中
-        #         })
-        # session.commit()
-        # session.close()
+        if process_type == 0:
+            session.query(Api_process).filter(Api_process.id == process_id).update({           
+                "build_number": data["build_number"],
+                "build_queue": data["build_queue"],
+                "state": 2 # 进行中
+            })
+            session.commit()
+            session.close()
+        else:
+            if process_type == 1:
+                print("process_type, process_id:", process_type, process_id, type(process_id))
+                session.query(App_process).filter(App_process.id == process_id).update({           
+                    "build_number": data["build_number"],
+                    "build_queue": data["build_queue"],
+                    "state": 2 # 进行中
+                })
+                session.commit()
+                session.close()
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
-        # session.rollback()
+        session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
 # 查询jenkins构建任务的状态

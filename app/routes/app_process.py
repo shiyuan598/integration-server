@@ -85,8 +85,9 @@ def create():
         modules = request.json.get("modules")
         creator = request.json.get("creator")
         type = request.json.get("type")
+        state = int(request.json.get("state"))
         data = App_process(project=project, version=version, build_type=build_type, api_version=api_version, 
-        job_name=job_name, modules=modules, creator=creator, type=type)
+        job_name=job_name, modules=modules, creator=creator, type=type, state=state)
         session.add(data)
         session.commit()
         session.close()
@@ -107,7 +108,7 @@ def edit():
         api_version = request.json.get("api_version")
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
-        state = request.json.get("state")
+        state = int(request.json.get("state"))
         session.query(App_process).filter(App_process.id == id).update({
             "project": project,
             "version": version,
