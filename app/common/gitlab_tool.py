@@ -15,7 +15,7 @@ def getAllBranches(project_name_with_namespace):
         project = gl.projects.get(project_name_with_namespace)
         # 获取分支
         branches = []
-        for branch in project.branches.list():
+        for branch in project.branches.list(all=True):
             branches.append(branch.name)
         return branches
     except Exception as e:
@@ -28,7 +28,7 @@ def getAllTags(project_name_with_namespace):
         project = gl.projects.get(project_name_with_namespace)
         # 获取tag
         tags = []
-        for tag in project.tags.list():
+        for tag in project.tags.list(all=True):
             tags.append(tag.name)
         return tags
     except Exception as e:
@@ -48,11 +48,11 @@ def getBranchesTagsOfMultiProjects2(project_names):
             if name_with_namespace in project_names:
                 # 获取分支
                 branches = []
-                for branch in project.branches.list():
+                for branch in project.branches.list(all=True):
                     branches.append(branch.name)
                 # 获取tag
                 tags = []
-                for tag in project.tags.list():
+                for tag in project.tags.list(all=True):
                     tags.append(tag.name)
                 result[project.name] = {
                     "branch": branches,
@@ -76,11 +76,12 @@ def getBranchesTagsOfMultiProjects(project_names):
             project = gl.projects.get(project_name_with_namespace)
             # 获取分支
             branches = []
-            for branch in project.branches.list():
+
+            for branch in project.branches.list(all=True):
                 branches.append(branch.name)
             # 获取tag
             tags = []
-            for tag in project.tags.list():
+            for tag in project.tags.list(all=True):
                 tags.append(tag.name)
             result[project_name_with_namespace] = {
                 "branch": branches,
