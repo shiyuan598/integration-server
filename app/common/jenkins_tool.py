@@ -13,7 +13,7 @@ def build(job, parameters):
         print("\nextBuildNumber: ", nextBuildNumber)
 
         # 构建job
-        build_queue = server.build_job(job, parameters)
+        build_queue = server.build_job(job, {"param": parameters})
         print("\nbuild_queue: ", build_queue)
         return {
             "build_number": nextBuildNumber,
