@@ -16,7 +16,7 @@ def getAllFiles(path):
             files.append(file.uri)
         return files
     except Exception as e:
-        print('An exception occurred in artifactory getAllFiles', str(e))
+        print('An exception occurred in artifactory getAllFiles', str(e), flush=True)
         
 # 查询一个目录访问地址
 def getUri(path):
@@ -25,4 +25,4 @@ def getUri(path):
         arts = art.artifacts.info(path)
         return arts.uri
     except Exception as e:
-        print('An exception occurred in artifactory getUri', str(e))
+        print('An exception occurred in artifactory getUri', str(e), flush=True)

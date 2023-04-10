@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import class_mapper
 from exts import db
 
+# 用户
 class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True, autoincrement=True)

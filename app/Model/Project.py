@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, func
 from sqlalchemy.orm import class_mapper
 from exts import db
 
-# 订单
+# 项目
 class Project(db.Model):
     __tablename__ = 'project'
     id = Column(Integer, primary_key=True, autoincrement=True)

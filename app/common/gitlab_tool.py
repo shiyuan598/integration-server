@@ -19,7 +19,7 @@ def getAllBranches(project_name_with_namespace):
             branches.append(branch.name)
         return branches
     except Exception as e:
-      print('An exception occurred in gitlab getAllBranches', str(e))
+      print('An exception occurred in gitlab getAllBranches', str(e), flush=True)
     
 # 查询一个项目的所有Tag
 def getAllTags(project_name_with_namespace):
@@ -32,7 +32,7 @@ def getAllTags(project_name_with_namespace):
             tags.append(tag.name)
         return tags
     except Exception as e:
-      print('An exception occurred in gitlab getAllTags', str(e))
+      print('An exception occurred in gitlab getAllTags', str(e), flush=True)
     
 
 # 一次查询多个项目的所有分支和tag
@@ -63,7 +63,7 @@ def getBranchesTagsOfMultiProjects2(project_names):
         print("\n getBranchesTagsOfMultiProjects2 run time:", runTime)
         return result
     except Exception as e:
-      print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e))
+      print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e), flush=True)
 
 
 # 一次查询多个项目的所有分支和tag
@@ -92,4 +92,4 @@ def getBranchesTagsOfMultiProjects(project_names):
         print("\n getBranchesTagsOfMultiProjects method run time:", runTime)
         return result
     except Exception as e:
-      print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e))
+      print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e), flush=True)

@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import class_mapper
 from exts import db
 
-# 订单状态
+# 流程状态
 class Process_state(db.Model):
     __tablename__ = 'process_state'
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -1,10 +1,11 @@
 # coding=utf8
-# 接口集成
+# 应用集成
 from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state
 from sqlalchemy import func, text, and_, or_, asc, desc
 from common.utils import generateEntries
 from common.jenkins_tool import update_build_state
+from .todo import create_todo
 from exts import db
 session = db.session
 
@@ -79,7 +80,7 @@ def search():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 创建接口集成
+# 创建应用集成
 @app_process.route('/create', methods=["POST"])
 def create():
     try:
@@ -94,10 +95,16 @@ def create():
         type = request.json.get("type")
         state = int(request.json.get("state"))
         data = App_process(project=project, version=version, build_type=build_type, 
-        job_name=job_name, modules=modules, creator=creator, type=type, state=state)
+        job_name=job_name, modules=modules, creator=creator, type=type, state=state, desc=desc)
         session.add(data)
+        session.flush()
+        id = data.id
         session.commit()
         session.close()
+
+        # 创建待办消息
+        create_todo(type=1, process_id=id, version=version, creator=creator, desc=desc, modules=modules)
+        
         return jsonify({"code": 0, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -112,26 +119,33 @@ def edit():
         project = request.json.get("project")
         version = request.json.get("version")
         build_type = request.json.get("build_type")
-        api_version = request.json.get("api_version")
+        # api_version = request.json.get("api_version")
+        desc = request.json.get("desc")
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
+        creator = request.json.get("creator")
+        type = request.json.get("type")
         state = int(request.json.get("state"))
         session.query(App_process).filter(App_process.id == id).update({
             "project": project,
             "version": version,
             "build_type": build_type,
-            "api_version": api_version,
+            "desc": desc,
             "job_name": job_name,
             "modules": modules,
             "state": int(state)
         })
         session.commit()
         session.close()
+
+        # 系统应用创建待办消息
+        if type == 1:
+            create_todo(type=1, process_id=id, version=version, creator=creator, desc=desc, modules=modules)
+            
         return jsonify({"code": 0, "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
-
 
 # 更新接口集成中的模块配置
 @app_process.route('/update_module', methods=["POST"])

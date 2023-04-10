@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, func, UniqueConstraint
 from sqlalchemy.orm import class_mapper
 from exts import db
 
-# 订单
+# 模块
 class Module(db.Model):
     __tablename__ = 'module'
     id = Column(Integer, primary_key=True, autoincrement=True)

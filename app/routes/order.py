@@ -530,4 +530,4 @@ def getAllAdminPhones():
         return list(set(phones))
     except Exception as e:
         session.rollback()
-        print('An exception occurred', str(e), flush=True)
+        print('An exception occurred getAllAdminPhones', str(e), flush=True)

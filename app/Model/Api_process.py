@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, func, UniqueCons
 from sqlalchemy.orm import class_mapper
 from exts import db
 
-# 订单
+# 接口集成流程
 class Api_process(db.Model):
     __tablename__ = 'api_process'
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -12,30 +12,24 @@ server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
 # 构建job
 def build(job, parameters):
     try:
-        print("参数：", parameters)
         # 查询下一次build的number
         nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
-        print("\nextBuildNumber: ", nextBuildNumber)
 
         # 构建job
         build_queue = server.build_job(job, {"param": parameters})
-        print("\nbuild_queue: ", build_queue)
         return {
             "build_number": nextBuildNumber,
             "build_queue": build_queue
         }
     except Exception as e:
-      print('An exception occurred in jenkins build', str(e))
+      print('An exception occurred in jenkins build', str(e), flush=True)
 
 # 更新任务状态
 def update_build_state(data, type="Api_process"):
     try:
         for item in data:
-            print("\nget_build_info params:", item[1], item[2], item[3])
             info = get_build_info(item[1], item[2], item[3])
-            print("\nget_build_info results:", info)
             if (info["state"] > 2):
-                print("write into...")
                 if type == "Api_process":
                     session.query(Api_process).filter(Api_process.id == item[0]).update({
                         "state": info["state"],
@@ -50,9 +44,9 @@ def update_build_state(data, type="Api_process"):
                     })
                     session.commit()
                     session.close()
-    except:
+    except Exception as e:
         session.rollback()
-        print('An exception occurred')
+        print('An exception occurred at update_build_state', str(e), flush=True)
 
 
 #  办法：
@@ -70,7 +64,6 @@ def get_build_info(job, build_number, build_queue):
     try:
         # 查询job最后一次build的number, 判断当前能否查询到
         last_build_number = server.get_job_info(job)['lastBuild']['number']
-        print("\nlast_build_number: ", last_build_number)
         if last_build_number < build_number:
             # 目前还查询不到
             return {
@@ -92,4 +85,4 @@ def get_build_info(job, build_number, build_queue):
                 return get_build_info(job, build_number + 1, build_queue)
 
     except Exception as e:
-      print('An exception occurred in jenkins get_build_info', str(e))
+      print('An exception occurred in jenkins get_build_info', str(e), flush=True)

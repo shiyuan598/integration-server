@@ -72,7 +72,6 @@ def build_job():
             session.close()
         else:
             if process_type == 1:
-                print("process_type, process_id:", process_type, process_id, type(process_id))
                 session.query(App_process).filter(App_process.id == process_id).update({           
                     "build_number": data["build_number"],
                     "build_queue": data["build_queue"],
@@ -80,6 +79,7 @@ def build_job():
                 })
                 session.commit()
                 session.close()
+        
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
