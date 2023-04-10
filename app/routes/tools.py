@@ -59,10 +59,8 @@ def build_job():
         process_type = int(request.json.get("process_type", 0))
         process_id = int(request.json.get("process_id", 0))
         job = request.json.get("job", "integration_test4")
-        parameters = request.json.get("parameters", {"username": "yhifif", "date": "2023-04-20"})
+        parameters = request.json.get("parameters")
         data = build(job, parameters)
-        print("\n process_type, type(process_type):", process_type, type(process_type))
-        # data = build("integration_test4", {"username": "yhdodo", "date": "2023-04-20"})
         # 更新集成流程中的build_number, build_queue
         if process_type == 0:
             session.query(Api_process).filter(Api_process.id == process_id).update({           
@@ -87,7 +85,7 @@ def build_job():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 查询jenkins构建任务的状态
+# 查询jenkins构建任务的状态，不需要该接口，通过后端的定时任务更新状态，前端直接刷新页面即可(或定时刷新)
 @tools.route('/jenkins/build_info', methods=["GET", "POST"])
 def build_info():
     try:

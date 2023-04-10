@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state
 from sqlalchemy import func, text, and_, or_, asc, desc
 from common.utils import generateEntries
+from common.jenkins_tool import update_build_state
 from exts import db
 session = db.session
 
@@ -33,6 +34,11 @@ def search():
         session.close()
         if total == 0:
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
+
+        # 更新流程状态
+        runningData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue).filter(App_process.state == 2).all()
+        session.close()
+        update_build_state(runningData, "App_process")
 
         # 查询分页数据
         query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version,
