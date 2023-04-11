@@ -7,6 +7,8 @@ class Todo(db.Model):
     __tablename__ = 'todo'
     id = Column(Integer, primary_key=True, autoincrement=True)
     type = Column(Integer, nullable=False, server_default="1", comment="类型：0-接口集成，1-应用集成")
+    project = Column(Integer, nullable=False, comment="项目")
+    build_type = Column(String(50), nullable=False, comment="构建类型")
     process_id = Column(Integer, nullable=False, comment="流程Id")
     version = Column(String(50), nullable=False, comment="版本号")
     module_name = Column(String(50), nullable=False, comment="模块名称")

@@ -105,8 +105,9 @@ def create():
         session.commit()
         session.close()
 
-        # 创建待办消息
-        create_todo(type=1, process_id=id, version=version, creator=creator, desc=desc, modules=modules)
+        # 系统应用创建待办消息
+        if type == 1:
+            create_todo(type=1, process_id=id, project=project, build_type=build_type, version=version, creator=creator, desc=desc, modulesStr=modules)
         
         return jsonify({"code": 0, "msg": "成功"})
     except Exception as e:
@@ -143,7 +144,7 @@ def edit():
 
         # 系统应用创建待办消息
         if type == 1:
-            create_todo(type=1, process_id=id, version=version, creator=creator, desc=desc, modules=modules)
+            create_todo(type=1, process_id=id, project=project, build_type=build_type, version=version, creator=creator, desc=desc, modulesStr=modules)
             
         return jsonify({"code": 0, "msg": "成功"})
     except Exception as e:
@@ -151,19 +152,14 @@ def edit():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 更新应用集成中的模块配置
-@app_process.route('/update_module', methods=["POST"])
-def update_module():
+@app_process.route('/modules', methods=["GET"])
+def modules():
     try:
-        id = request.json.get("id")
-        modules = request.json.get("modules")
-        state = request.json.get("state")
-        session.query(App_process).filter(App_process.id == id).update({           
-            "modules": modules,
-            "state": int(state) # 所有模块信息填写完整后状态为已就绪
-        })
+        id = request.args.get("id")
+        result = session.query(App_process.modules).filter(App_process.id == id).all()
         session.commit()
         session.close()
-        return jsonify({"code": 0, "msg": "成功"})
+        return jsonify({"code": 0, "data": result[0], "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
