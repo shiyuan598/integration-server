@@ -11,7 +11,7 @@ session = db.session
 
 app_process = Blueprint("app_process", __name__)
 
-# 接口集成流程列表
+# 应用集成流程列表
 @app_process.route('/list', methods=["GET"])
 def search():
     try:
@@ -22,14 +22,15 @@ def search():
         orderField = request.args.get("order", "")
         orderSeq = request.args.get("seq", "")
         type = int(request.args.get("type", 1))
+        user_id = int(request.args.get("user_id"))
         # 查询总数据量
         query = session.query(func.count(App_process.id)).filter(or_(
             App_process.project.like("%{}%".format(name)),
             App_process.version.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
-        ))
-        if type == 1:
-            query = query.filter(App_process.type == type)
+        )).filter( # 查询系统级的集成流程或自己创建的流程
+            or_(App_process.type == 1, App_process.creator == user_id)
+        )            
         
         total = query.scalar()
         session.close()
@@ -59,7 +60,9 @@ def search():
             App_process.project.like("%{}%".format(name)),
             App_process.version.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
-        ))
+        )).filter( # 查询系统级的集成流程或自己创建的流程
+            or_(App_process.type == 1, App_process.creator == user_id)
+        )
 
         if type == 1:
             query = query.filter(App_process.type == type)
@@ -111,7 +114,7 @@ def create():
         return jsonify({"code": 1, "msg": str(e)})
 
 
-# 编辑接口集成
+# 编辑应用集成
 @app_process.route('/edit', methods=["POST"])
 def edit():
     try:
@@ -147,7 +150,7 @@ def edit():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 更新接口集成中的模块配置
+# 更新应用集成中的模块配置
 @app_process.route('/update_module', methods=["POST"])
 def update_module():
     try:

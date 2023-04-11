@@ -19,6 +19,7 @@ def search():
         name = request.args.get("name", "")
         orderField = request.args.get("order", "")
         orderSeq = request.args.get("seq", "")
+        user_id = request.args.get("user_id")
         # 查询总数据量
         total = session.query(func.count(Api_process.id)).filter(or_(
             Api_process.project.like("%{}%".format(name)),

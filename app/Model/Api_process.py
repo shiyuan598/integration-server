@@ -6,13 +6,13 @@ from exts import db
 class Api_process(db.Model):
     __tablename__ = 'api_process'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    project = Column(String(50), nullable=False, comment="项目")
+    project = Column(Integer, nullable=False, comment="项目")
     build_type = Column(String(50), nullable=False, comment="构建类型")
     version = Column(String(50), nullable=False, comment="版本号")
     release_note = Column(String(50), nullable=False, comment="release note")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
-    creator = Column(String(50), nullable=False, comment="创建者")
+    creator = Column(Integer, nullable=False, comment="创建者")
     modules = Column(Text, nullable=False, comment="模块信息")
     job_name = Column(Text, nullable=False, comment="jenkins构建任务的名称")
     build_queue = Column(Integer, comment="jenkins构建任务的queue_id")

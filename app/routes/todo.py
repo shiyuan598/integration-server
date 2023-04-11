@@ -20,8 +20,9 @@ def search():
         orderField = request.args.get("order", "")
         orderSeq = request.args.get("seq", "")
         filter = request.args.get("state", 0)
+        user_id = int(request.args.get("user_id"))
         # 查询总数据量
-        query = session.query(func.count(Todo.id))
+        query = session.query(func.count(Todo.id)).filter(or_(Todo.creator == user_id, Todo.handler == user_id))
         if filter != "":
             query = query.filter(Todo.state == int(filter))
         
@@ -31,10 +32,11 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.version, Todo.module, Todo.creator, Todo.handler, Todo.desc,
+        query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.version, Todo.module_name, Todo.creator, Todo.handler, Todo.desc,
             func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'))
-        if filter != "":
+        query = query.filter(or_(Todo.creator == user_id, Todo.handler == user_id))
+        if filter != "": # 查询历史待办
             query = query.filter(Todo.state == int(filter))
 
         # 设置排序
@@ -64,7 +66,7 @@ def create_todo(type, process_id, version, creator, desc, modules):
         # base模块不需要创建待办, 填写过version的不需要创建待办
         if value["type"] != 0 and value["version"] == "":
             data = Todo(type=type, process_id=process_id, version=version, creator=creator, desc=desc,
-                module=key, handler=value["owner"])
+                module_name=key, handler=value["owner"])
             session.add(data)
             session.commit()
             session.close()

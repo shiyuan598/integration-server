@@ -12,7 +12,7 @@ class Project(db.Model):
     artifacts_path = Column(Text, nullable=False, comment="Artifactory Repository Path")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
-    owner = Column(String(50), nullable=False, comment="负责人")
+    owner = Column(Integer, nullable=False, comment="负责人")
     desc = Column(String(100), comment="描述")
 
     def as_dict(obj):
