@@ -18,6 +18,10 @@ def registerRoute(app):
     from .todo import todo
     app.register_blueprint(todo, url_prefix=BASE_URL_PREFIX + "/todo")
 
+    # 用户
+    from .user import user
+    app.register_blueprint(user, url_prefix=BASE_URL_PREFIX + "/user")
+
     # gitlab、jenkins、artifactory
     from .tools import tools
     app.register_blueprint(tools, url_prefix=BASE_URL_PREFIX)

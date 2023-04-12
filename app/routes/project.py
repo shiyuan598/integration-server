@@ -1,7 +1,7 @@
 # coding=utf8
 # 项目管理
 from flask import Blueprint, request, jsonify
-from Model import Project, Module
+from Model import Project, Module, User
 from sqlalchemy import func, text, and_, or_, asc, desc, case
 from common.utils import generateEntries
 from exts import db
@@ -29,9 +29,13 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner, Project.desc,
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner, User.name.label("owner_name"), Project.desc,
         func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+        func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
+        ).join(
+            User,
+            User.id == Project.owner,
+            isouter=True
         ).filter(or_(
             Project.name.like("%{}%".format(name)),
             Project.platform.like("%{}%".format(name))
@@ -46,7 +50,7 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner", "owner_name", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -57,10 +61,10 @@ def search():
 def search_all():
     try:
         # 查询所有数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path)
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -86,14 +90,18 @@ def modules(project_id):
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Module.id, Module.name, Module.git, Module.owner, Module.desc,
+        query = session.query(Module.id, Module.name, Module.git, Module.owner, User.name.label("owner_name"), Module.desc,
         Module.type, case(
                 (Module.type == 0, "Base"),
                 (Module.type == 1, "接口"),
                 (Module.type == 2, "应用")
         ).label("type_name"),
         func.date_format(func.date_add(Module.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+        func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
+        ).join(
+            User,
+            User.id == Module.owner,
+            isouter=True
         ).filter(or_(
             Module.name.like("%{}%".format(name))
         )).filter(Module.project == project_id)
@@ -107,7 +115,7 @@ def modules(project_id):
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "git", "owner", "desc", "type", "type_name", "create_time", "update_time"], result)
+        data = generateEntries(["id", "name", "git", "owner", "owner_name", "desc", "type", "type_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -120,10 +128,15 @@ def modules_all(project_id):
         # 接收参数
         project_id = request.view_args['project_id']
         # 查询所有数据
-        query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner).filter(Module.project == project_id)
+        query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner, User.name.label("owner_name")
+        ).join(
+            User,
+            User.id == Module.owner,
+            isouter=True
+        ).filter(Module.project == project_id)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "type", "git", "owner"], result)
+        data = generateEntries(["id", "name", "type", "git", "owner", "owner_name"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

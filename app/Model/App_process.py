@@ -13,7 +13,7 @@ class App_process(db.Model):
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     creator = Column(Integer, nullable=False, comment="创建者")
-    type = Column(Integer, nullable=False, server_default="1", comment="类型：1-系统集成，0-开发集成")
+    type = Column(Integer, nullable=False, server_default="1", comment="类型：0-系统集成，1-开发集成")
     modules = Column(Text, nullable=False, comment="模块信息")
     job_name = Column(Text, nullable=False, comment="jenkins构建任务的名称")
     build_queue = Column(Integer, comment="jenkins构建任务的queue_id")

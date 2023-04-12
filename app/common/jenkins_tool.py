@@ -1,6 +1,6 @@
 import jenkins
 from Model import Api_process, App_process
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from exts import db
 session = db.session
 
@@ -29,6 +29,23 @@ def update_build_state(data, type="Api_process"):
     try:
         for item in data:
             info = get_build_info(item[1], item[2], item[3])
+            print("\n\n iaxpiaxp:", info, "\n\n")
+            # 单更新url
+            if (info["state"] == 2 and info["url"] is not None):
+
+                if type == "Api_process":
+                    session.query(Api_process).filter(Api_process.id == item[0]).update({
+                        "jenkins_url": info["url"]
+                    })
+                    session.commit()
+                    session.close()
+                if type == "App_process":
+                    session.query(App_process).filter(App_process.id == item[0]).update({
+                        "jenkins_url": info["url"]
+                    })
+                    session.commit()
+                    session.close()
+            # 更新url和状态
             if (info["state"] > 2):
                 if type == "Api_process":
                     session.query(Api_process).filter(Api_process.id == item[0]).update({
@@ -72,14 +89,23 @@ def get_build_info(job, build_number, build_queue):
         else:
             # 查询build_info, 比对queue
             build_info = server.get_build_info(job, build_number)
+            print("\n\n build_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n")
             # 相等时, 认为是这个build
             if build_queue == build_info["queueId"]:
-                # 更新状态
-                return {
-                    "state": 3 if build_info["result"].lower() == "success" else 4,
-                    "result": build_info["result"],
-                    "url": build_info["url"]
-                }
+                print("\n\n\n llle", build_info["result"] is None)
+                # 未构建结束，更新url
+                if build_info["result"] is None:
+                    print("\n\n\n 哈黄哈哈")
+                    return {
+                        "state": 2,
+                        "url": build_info["url"]
+                    }
+                else:
+                    # 构建结束，更新结果、状态
+                    return {
+                        "state": 3 if build_info["result"].lower() == "success" else 4,
+                        "url": build_info["url"]
+                    }
             # 否则认为是下一次构建
             else:
                 return get_build_info(job, build_number + 1, build_queue)

@@ -2,9 +2,9 @@
 # 待办
 import json
 from flask import Blueprint, request, jsonify
-from Model import Todo, Project, App_process
-# from .app_process import update_app_process_module
+from Model import Todo, Project, App_process, User
 from sqlalchemy import func, text, and_, or_, asc, desc, case
+from sqlalchemy.orm import aliased
 from common.utils import generateEntries
 from exts import db
 session = db.session
@@ -32,15 +32,26 @@ def search():
         if total == 0:
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
+        # 表别名，便于多次join同一个表
+        S = aliased(User)
+        T = aliased(User)
         # 查询分页数据
         query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.project, Project.name.label("project_name"), Todo.build_type,
-            Todo.version, Todo.module_name, Todo.creator, Todo.handler, Todo.desc,
+            Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, T.name.label("handler_name"), Todo.desc,
             func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'
         )).join(
             Project,
             Todo.project == Project.id,
             isouter=True
+        ).join(
+            S,
+            Todo.creator == S.id,
+            isouter = True
+        ).join(
+            T,
+            Todo.handler == T.id,
+            isouter = True
         )
         query = query.filter(or_(Todo.creator == user_id, Todo.handler == user_id))
         if filter != "": # 查询历史待办
@@ -55,7 +66,7 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", "creator", "handler", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", "creator", "creator_name", "handler", "handler_name", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -92,7 +103,7 @@ def handle_todo():
         module_name = request.json.get("module_name")
         version = request.json.get("version")
         release_note = request.json.get("release_note")
-        # 1.更新集成流程的模块信息及状态
+        # 1.更新 *应用* 集成流程的模块信息及状态
         if type == 1:
             update_app_process_module(process_id, module_name, version, release_note)
         # 2.更新待办消息的状态

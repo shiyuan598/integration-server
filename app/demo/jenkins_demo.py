@@ -32,28 +32,28 @@ config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
 # config = server.get_job_config("gerrit_zhito-L4/adm")
 # print(config)
 
-job_info = server.get_job_info(job)
-print("\njob_info:", job_info)
+# job_info = server.get_job_info(job)
+# print("\njob_info:", job_info)
 
-# 查询下一次build的number
-nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
-print("\nextBuildNumber: ", nextBuildNumber)
+# # 查询下一次build的number
+# nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
+# print("\nextBuildNumber: ", nextBuildNumber)
 
-# 构建job
-build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
-# build_id = server.build_job(job)
-print("\nbuild_id: ", build_id) #16581
+# # 构建job
+# build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
+# # build_id = server.build_job(job)
+# print("\nbuild_id: ", build_id) #16581
 
 # item = server.get_queue_item(number=build_id)
 # print("\nqueue item:", item)
 
-# 查询job最后一次build的number
-build_number = server.get_job_info(job)['lastBuild']['number']
-print("\nbuild_number: ", build_number)
+# # 查询job最后一次build的number
+# build_number = server.get_job_info(job)['lastBuild']['number']
+# print("\nbuild_number: ", build_number)
 
-# 查询build状态及结果
-build_info = server.get_build_info(job, build_number)
-print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n", build_info)
+# # 查询build状态及结果
+# build_info = server.get_build_info(job, build_number)
+# print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n", build_info)
 
 #  办法：
 #  1.build前假定该次build_number = nextBuildNumber, 记录queueId
@@ -65,7 +65,12 @@ print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["
 #    2.5 如果不相等, build_number = build_number + 1, 重复执行步骤2
 #  tips:build之后不能立即查询到build_number,等待时间不确定
 
-nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
-print("\nnext_build_number：", nextBuildNumber)
-build_info = server.get_build_info(job, nextBuildNumber)
-print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], build_info["url"])
+# nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
+# print("\nnext_build_number：", nextBuildNumber)
+# build_info = server.get_build_info(job, nextBuildNumber)
+# print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], build_info["url"])
+
+
+build_info = server.get_build_info(job, 59)
+print("\n\n", build_info, "\n\n")
+print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"])

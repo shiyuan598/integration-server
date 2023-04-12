@@ -33,7 +33,7 @@ def search():
         # 查询分页数据
         query = session.query(Api_process.id, Api_process.project, Api_process.build_type, Api_process.version, Api_process.release_note,
         Api_process.job_name, Api_process.build_queue, Api_process.build_number, Api_process.jenkins_url, Api_process.artifactory_url,
-        Api_process.creator, Api_process.modules, Api_process.state, Process_state.name.label("state_name"), Api_process.desc, Project.name.label("project_name"),
+        Api_process.creator, User.name.label("creator_name"), Api_process.modules, Api_process.state, Process_state.name.label("state_name"), Api_process.desc, Project.name.label("project_name"),
         func.date_format(func.date_add(Api_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Api_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).join(
@@ -43,6 +43,10 @@ def search():
         ).join(
             Process_state,
             Api_process.state == Process_state.state,
+            isouter=True
+        ).join(
+            User,
+            User.id == Api_process.creator,
             isouter=True
         ).filter(or_(
             Api_process.project.like("%{}%".format(name)),
@@ -60,7 +64,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "release_note", "job_name", "build_queue", "build_number",
-        "jenkins_url", "artifactory_url", "creator", "modules", "state", "state_name", "desc", "project_name", "create_time", "update_time"], result)
+        "jenkins_url", "artifactory_url", "creator", "creator_name", "modules", "state", "state_name", "desc", "project_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()

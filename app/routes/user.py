@@ -33,10 +33,9 @@ def search():
         # 查询分页数据
         query = session.query(User.id, User.name, User.username, User.telephone, User.role,
         case(
-                (User.role == 1, "管理员"),
-                (User.role == 2, "司机"),
-                (User.role == 3, "普通用户")
-            ).label("roleName")
+                (User.role == 0, "平台管理员"),
+                (User.role == 1, "普通用户")
+            ).label("role_name")
         ).filter(or_(
             User.name.like("%{}%".format(name)),
             User.username.like("%{}%".format(name))
@@ -51,15 +50,17 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "username", "telephone", "role", "roleName"], result)
+        data = generateEntries(["id", "name", "username", "telephone", "role", "role_name"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
 # 获取不同角色的用户
-def getUserByRole(role, username):
+@user.route('/role/<int:role>', methods=["GET"])
+def getUserByRole(role):
     try:
+        username = request.args.get("username")
         query = session.query(User.id, User.name, User.username, User.telephone, User.role).filter(User.role == role)
         if username != None:
             query = query.filter(User.username == username)
@@ -69,33 +70,6 @@ def getUserByRole(role, username):
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
-        return jsonify({"code": 1, "msg": str(e)})
-
-# 查询管理员
-@user.route('/admin', methods=["GET"])
-def admin():
-    try:
-        username = request.args.get("username")
-        return getUserByRole(1, username)
-    except Exception as e:
-        return jsonify({"code": 1, "msg": str(e)})
-
-# 查询司机
-@user.route('/driver', methods=["GET"])
-def driver():
-    try:
-        username = request.args.get("username")
-        return getUserByRole(2, username)
-    except Exception as e:
-        return jsonify({"code": 1, "msg": str(e)})
-
-# 查询普通用户
-@user.route('/general', methods=["GET"])
-def general():
-    try:
-        username = request.args.get("username")
-        return getUserByRole(3, username)
-    except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})
 
 # 创建token

@@ -2,7 +2,7 @@
 # 工具接口，gitlab/jenkins/artifactory/confluence
 from flask import Blueprint, request, jsonify
 from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects, getBranchesTagsOfMultiProjects2
-from common.jenkins_tool import build, get_build_info
+from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getUri
 
 from Model import Api_process, App_process
@@ -83,22 +83,6 @@ def build_job():
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
-        return jsonify({"code": 1, "msg": str(e)})
-
-# 查询jenkins构建任务的状态，不需要该接口，通过后端的定时任务更新状态，前端直接刷新页面即可(或定时刷新)
-@tools.route('/jenkins/build_info', methods=["GET", "POST"])
-def build_info():
-    try:
-        # process_type = request.json.get("process_type", "0")
-        # process_id = request.json.get("process_id", "0")
-        # job = request.json.get("job", "integration_test4")
-        # build_number = request.json.get("build_number", "26")
-        # build_queue = request.json.get("build_queue", "18052")
-        # data = get_build_info(job, build_number, build_queue)
-        data = get_build_info("integration_test4", 37, 18091)
-
-        return jsonify({"code": 0, "data": data, "msg": "成功"})
-    except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})
 
 #  办法：
