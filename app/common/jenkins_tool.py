@@ -29,7 +29,6 @@ def update_build_state(data, type="Api_process"):
     try:
         for item in data:
             info = get_build_info(item[1], item[2], item[3])
-            print("\n\n iaxpiaxp:", info, "\n\n")
             # 单更新url
             if (info["state"] == 2 and info["url"] is not None):
 
@@ -89,13 +88,10 @@ def get_build_info(job, build_number, build_queue):
         else:
             # 查询build_info, 比对queue
             build_info = server.get_build_info(job, build_number)
-            print("\n\n build_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n")
             # 相等时, 认为是这个build
             if build_queue == build_info["queueId"]:
-                print("\n\n\n llle", build_info["result"] is None)
                 # 未构建结束，更新url
                 if build_info["result"] is None:
-                    print("\n\n\n 哈黄哈哈")
                     return {
                         "state": 2,
                         "url": build_info["url"]
