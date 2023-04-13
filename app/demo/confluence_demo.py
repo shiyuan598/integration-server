@@ -1,23 +1,88 @@
-import requests
-import json # loads / dumps
+import json
+from atlassian import Confluence
 
-headers = {
-    'Content-Type': 'application/json',
+confluence = Confluence(url="https://confluence.zhito.com:8090",
+                        username="wangshiyuan",
+                        password="zhito26@#")
+# confluence.login()
+print(confluence)
+
+config = {
+    "project": "GSL4_X86",
+    "version": "1.1",
+    "build_type": "Debug",
+    "base": {
+        "message_group": {
+            "url": "git@gitlab.zhito.com:ai/message_group.git",
+            "version": "feature/zhito_l4_cicd"
+        },
+        "common": {
+            "url": "git@gitlab.zhito.com:ai/zhito_common.git",
+            "version": "feature/zhito_l4_cicd"
+        },
+        "map": {
+            "url": "git@gitlab.zhito.com:ai/map_module.git",
+            "version": "feature/zhito_l4_cicd"
+        },
+        "zlam_common": {
+            "url": "git@gitlab.zhito.com:zlam/zlam_common.git",
+            "version": "feature/zhito_l4_cicd"
+        },
+        "perception_common": {
+            "url": "git@gitlab.zhito.com:ai/perception_common.git",
+            "version": "feature/zhito_l4_cicd"
+        }
+    },
+    "modules": {
+        "drivers": {
+            "url": "git@gitlab.zhito.com:drivers/drivers.git",
+            "version": "feature/zhito_l4_cicd"
+        }
+    }
 }
-response = requests.get(
-    'https://confluence.zhito.com:8090/rest/api/space/ITD',
-    headers=headers,
-    auth=("wangshiyuan", "zhito26@#"))
-print(response, response.text)
 
-response = requests.get(
-    'https://confluence.zhito.com:8090/rest/api/content/56102841',
-    headers=headers,
-    auth=("wangshiyuan", "zhito26@#"))
-print("\n\n", response, response.text) # _links.webui
+space = "ITD"
+title = "page6"
+pre = '<p class="auto-cursor-target">本次构建配置信息如下：</p><p class="auto-cursor-target"><br /></p><ac:structured-macro ac:name="code" ac:schema-version="1" ac:macro-id="06dba324-f02c-4410-8fa5-190d5d7f8bcd"><ac:plain-text-body><![CDATA['
+suf = '}]]></ac:plain-text-body></ac:structured-macro><p><br /></p>'
+content = pre + json.dumps(config, indent=4) + suf
+parent_page = {"id": 56111727}
 
+new_page = confluence.create_page(space=space, title=title, body=content, parent_id=parent_page['id'])
+print("\n\npage:\n", new_page["_links"]["webui"])
+print("\n\nnew_page:", new_page)
 
-# 1. Install the Atlassian Python API library (called "atlassian-python-api") using pip. 
+# print("\n\nnew_page.id:", new_page["id"])
+# page = confluence.get_page_by_id(new_page["id"])
+# print("\n\npage:", page)
+# print("New page created: " + confluence.get_page_url(new_page['id']))
+
+# page = confluence.get_page_by_title(space=space,
+#                                     title="page6",
+#                                     expand='body.storage')
+# print("\n\npage:\n", page["_links"]["webui"])
+
+# print("\n\npage:\n", page["body"]["storage"]["value"])
+
+# import requests
+# import json # loads / dumps
+
+# headers = {
+#     'Content-Type': 'application/json',
+# }
+# response = requests.get(
+#     'https://confluence.zhito.com:8090/rest/api/space/ITD',
+#     headers=headers,
+#     auth=("wangshiyuan", "zhito26@#"))
+# print(response, response.text)
+
+# response = requests.get(
+#     'https://confluence.zhito.com:8090/rest/api/content/56102841',
+#     headers=headers,
+#     auth=("wangshiyuan", "zhito26@#"))
+# print("\n\n", response, response.text) # _links.webui
+
+# 1. Install the Atlassian Python API library (called "atlassian-python-api") using pip.
 
 # ```
 # pip install atlassian-python-api

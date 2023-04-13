@@ -5,6 +5,7 @@ pyMySQL
 python-gitlab
 pyartifactory
 python-jenkins
+atlassian-python-api
 flask-ldap3-login
 flask-sqlalchemy
 tencentcloud-sdk-python
