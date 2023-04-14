@@ -39,8 +39,12 @@ def search():
         query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.project, Project.name.label("project_name"), Todo.build_type,
             Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, T.name.label("handler_name"), Todo.desc,
             func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'
-        )).join(
+            func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            case(
+                (Todo.type == 0, "接口集成"),
+                (Todo.type == 1, "应用集成")
+            ).label("type_name")
+        ).join(
             Project,
             Todo.project == Project.id,
             isouter=True
@@ -66,7 +70,8 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", "creator", "creator_name", "handler", "handler_name", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", 
+        "creator", "creator_name", "handler", "handler_name", "desc", "create_time", "update_time", "type_name"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()

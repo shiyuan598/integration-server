@@ -7,7 +7,7 @@ from exts import db
 from flask_sqlalchemy import get_debug_queries, SQLAlchemy
 import time
 from routes.blueprint import registerRoute
-# from routes.user import check_token
+from routes.user import check_token
 
 app = Flask(__name__)
 app.config.from_object('config.setting')
@@ -35,7 +35,7 @@ NOT_CHECK_URL = [
 ALLOW_METHOD = ["GET", "POST", "DELETE", "PUT"]
 
 
-# @app.before_request
+@app.before_request
 def auth_check():
     if request.method in ALLOW_METHOD and request.path not in NOT_CHECK_URL:
         Authorization = request.headers.get('Authorization')
