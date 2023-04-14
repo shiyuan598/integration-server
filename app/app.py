@@ -8,6 +8,8 @@ from flask_sqlalchemy import get_debug_queries, SQLAlchemy
 import time
 from routes.blueprint import registerRoute
 from routes.user import check_token
+from apscheduler.schedulers.background import BackgroundScheduler
+from common.jenkins_tool import schedule_task
 
 app = Flask(__name__)
 app.config.from_object('config.setting')
@@ -67,6 +69,14 @@ def after_request(response):
 def teardown_request(e):
     db.session.remove()
 
+# 定时任务, 更新流程的状态
+def run_schedule_task():
+    with app.app_context():
+        schedule_task()
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(run_schedule_task, "interval", seconds=60)
+scheduler.start()
 
 if __name__ == '__main__':
     app.run(host="172.16.12.84", port=9002, debug=False)

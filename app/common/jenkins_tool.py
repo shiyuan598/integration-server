@@ -1,4 +1,5 @@
 import jenkins
+from apscheduler.schedulers.background import BackgroundScheduler
 from Model import Api_process, App_process
 from sqlalchemy import func, and_
 from exts import db
@@ -83,7 +84,8 @@ def get_build_info(job, build_number, build_queue):
         if last_build_number < build_number:
             # 目前还查询不到
             return {
-                "state": 2
+                "state": 2,
+                 "url": None
             }
         else:
             # 查询build_info, 比对queue
@@ -108,3 +110,13 @@ def get_build_info(job, build_number, build_queue):
 
     except Exception as e:
       print('An exception occurred in jenkins get_build_info', str(e), flush=True)
+
+
+def schedule_task():
+    try:
+        # 待更新状态的数据
+        runningData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue).filter(App_process.state == 2).all()
+        session.close()
+        update_build_state(runningData, "App_process")
+    except Exception as e:
+        print('An exception occurred in schedule_task', str(e), flush=True)

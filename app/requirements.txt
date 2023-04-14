@@ -12,4 +12,4 @@ tencentcloud-sdk-python
 tencentcloud-sdk-python-sms
 gunicorn==19.7.1
 gevent==22.10.2
-schedule
+apscheduler

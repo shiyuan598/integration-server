@@ -1,10 +1,9 @@
 # coding=utf8
 # 工具接口，gitlab/jenkins/artifactory/confluence
 from flask import Blueprint, request, jsonify
-from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects, getBranchesTagsOfMultiProjects2
+from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects
 from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getUri
-
 from Model import Api_process, App_process
 from sqlalchemy import func, text, and_, or_, asc, desc
 from exts import db
@@ -42,16 +41,6 @@ def branch_tag():
     except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})
 
-# 拉取gitlab多个项目的分支和Tag，一次性查询所有项目，再逐个比对，效率低
-@tools.route('/gitlab/multiple/branch_tag2', methods=["GET"])
-def branch_tag2():
-    try:
-        projects = request.args.getlist("projects")
-        data = getBranchesTagsOfMultiProjects2(projects[0].split(","))
-        return jsonify({"code": 0, "data": data, "msg": "成功"})
-    except Exception as e:
-        return jsonify({"code": 1, "msg": str(e)})
-
 # 触发jenkins构建
 @tools.route('/jenkins/build_job', methods=["POST"])
 def build_job():
@@ -84,16 +73,6 @@ def build_job():
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
-
-#  办法：
-#  1.build前假定该次build_number = nextBuildNumber, 记录queueId
-#  2.查询build_info前, 先查询lastbuildNumber, 
-#    2.1 lastBuildNumber < build_number, 直接返回, 认为build进行中, 需要等一会再查询
-#    2.2 lastBuildNumber >= build_number时, 查询buildInfo
-#    2.3 比较buildInfo.queueId和记录的queueId
-#    2.4 如果相等,返回buildInfo
-#    2.5 如果不相等, build_number = build_number + 1, 重复执行步骤2
-#  tips:build之后不能立即查询到build_number,等待时间不确定
 
 # 查询artifactory目录下的文件
 @tools.route('/artifacts/files', methods=["GET"])
