@@ -127,6 +127,7 @@ def modules_all(project_id):
     try:
         # 接收参数
         project_id = request.view_args['project_id']
+        types = request.args.getlist("type")
         # 查询所有数据
         query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner, User.name.label("owner_name")
         ).join(
@@ -134,6 +135,9 @@ def modules_all(project_id):
             User.id == Module.owner,
             isouter=True
         ).filter(Module.project == project_id)
+        if len(types) > 0:
+            types = tuple(types[0].split(","))
+            query = query.filter(Module.type.in_(types))
         result = query.all()
         session.close()
         data = generateEntries(["id", "name", "type", "git", "owner", "owner_name"], result)
