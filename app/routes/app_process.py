@@ -156,7 +156,10 @@ def modules():
         result = session.query(App_process.modules).filter(App_process.id == id).all()
         session.commit()
         session.close()
-        return jsonify({"code": 0, "data": result[0], "msg": "成功"})
+        if result[0] is not None:
+            return jsonify({"code": 0, "data": {"modules": result[0][0]}, "msg": "成功"})
+        else:
+            return jsonify({"code": 0, "data": {"modules": ""}, "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
