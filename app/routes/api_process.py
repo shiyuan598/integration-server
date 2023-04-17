@@ -1,7 +1,7 @@
 # coding=utf8
 # 接口集成
 from flask import Blueprint, request, jsonify
-from Model import Api_process, Project, Process_state
+from Model import Api_process, Project, Process_state, User
 from sqlalchemy import func, text, or_, asc, desc
 from common.utils import generateEntries
 from exts import db
@@ -32,7 +32,7 @@ def search():
 
         # 查询分页数据
         query = session.query(Api_process.id, Api_process.project, Api_process.build_type, Api_process.version, Api_process.release_note,
-        Api_process.job_name, Api_process.build_queue, Api_process.build_number, Api_process.jenkins_url, Api_process.artifactory_url,
+        Api_process.job_name, Api_process.build_queue, Api_process.build_number, Api_process.jenkins_url, Api_process.artifacts_url,
         Api_process.creator, User.name.label("creator_name"), Api_process.modules, Api_process.state, Process_state.name.label("state_name"), Api_process.desc, Project.name.label("project_name"),
         func.date_format(func.date_add(Api_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Api_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
@@ -64,7 +64,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "release_note", "job_name", "build_queue", "build_number",
-        "jenkins_url", "artifactory_url", "creator", "creator_name", "modules", "state", "state_name", "desc", "project_name", "create_time", "update_time"], result)
+        "jenkins_url", "artifacts_url", "creator", "creator_name", "modules", "state", "state_name", "desc", "project_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -81,8 +81,9 @@ def create():
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
         creator = request.json.get("creator")
+        artifacts_url = request.json.get("artifacts_url")
         data = Api_process(project=project, version=version, build_type=build_type, release_note=release_note, 
-        job_name=job_name, modules=modules, creator=creator)
+        job_name=job_name, modules=modules, creator=creator, artifacts_url=artifacts_url)
         session.add(data)
         session.commit()
         session.close()

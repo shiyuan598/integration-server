@@ -37,8 +37,9 @@ def search():
 
         # 查询分页数据
         query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version,
-        App_process.job_name, App_process.build_queue, App_process.build_number, App_process.jenkins_url, App_process.artifactory_url,
-        App_process.creator, User.name.label("creator_name"), App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.desc, Project.name.label("project_name"),
+        App_process.job_name, App_process.build_queue, App_process.build_number, App_process.jenkins_url, App_process.artifacts_url,
+        App_process.creator, User.name.label("creator_name"), App_process.modules, App_process.state, Process_state.name.label("state_name"),
+        App_process.type, App_process.desc, Project.name.label("project_name"),
         func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).join(
@@ -69,8 +70,8 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number",
-        "jenkins_url", "artifactory_url", "creator", "creator_name", "modules", "state", "state_name", "desc", "project_name", "create_time", "update_time"], result)
+        data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number", "jenkins_url",
+        "artifacts_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", "project_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -89,9 +90,10 @@ def create():
         modules = request.json.get("modules")
         creator = request.json.get("creator")
         type = request.json.get("type")
+        artifacts_url = request.json.get("artifacts_url")
         state = int(request.json.get("state"))
-        data = App_process(project=project, version=version, build_type=build_type, 
-        job_name=job_name, modules=modules, creator=creator, type=type, state=state, desc=desc)
+        data = App_process(project=project, version=version, build_type=build_type, job_name=job_name, 
+        modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
         session.add(data)
         session.flush()
         id = data.id

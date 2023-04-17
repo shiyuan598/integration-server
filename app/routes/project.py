@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from Model import Project, Module, User
 from sqlalchemy import func, text, and_, or_, asc, desc, case
 from common.utils import generateEntries
+from common.artifactory_tool import url as artifactory_base_url
 from exts import db
 session = db.session
 
@@ -61,10 +62,11 @@ def search():
 def search_all():
     try:
         # 查询所有数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner)
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path,
+        func.concat(artifactory_base_url, "/", Project.artifacts_path).label("artifacts_url"), Project.owner)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "artifacts_url", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

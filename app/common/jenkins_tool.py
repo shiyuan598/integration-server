@@ -1,7 +1,5 @@
 import jenkins
-from apscheduler.schedulers.background import BackgroundScheduler
 from Model import Api_process, App_process
-from sqlalchemy import func, and_
 from exts import db
 session = db.session
 
