@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, UniqueConstraint
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import class_mapper
 from exts import db
 

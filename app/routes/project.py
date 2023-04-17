@@ -161,3 +161,66 @@ def modules_all_type(project_id, type=0):
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
+
+
+# 创建项目
+@project.route('/create', methods=["POST"])
+def create():
+    try:
+        name = request.json.get("name")
+        platform = request.json.get("platform")
+        job_name = request.json.get("job_name")
+        artifacts_path = request.json.get("artifacts_path")
+        owner = request.json.get("owner")
+        desc = request.json.get("desc")
+        data = Project(name=name, platform=platform,job_name=job_name,artifacts_path=artifacts_path, owner=owner, desc=desc)
+        session.add(data)
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 编辑项目
+@project.route('/edit', methods=["POST"])
+def edit():
+    try:
+        id = request.json.get("id")
+        name = request.json.get("name")
+        platform = request.json.get("platform")
+        job_name = request.json.get("job_name")
+        artifacts_path = request.json.get("artifacts_path")
+        owner = request.json.get("owner")
+        desc = request.json.get("desc")
+        session.query(Project).filter(Project.id == id).update({
+            "name": name,
+            "platform": platform,
+            "job_name": job_name,
+            "artifacts_path": artifacts_path,
+            "owner": owner,
+            "desc": desc
+        })
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 删除项目--会一并删除项目下的所有模块
+@project.route('/delete', methods=["POST"])
+def delete():
+    try:
+        id = request.json.get("id")        
+        session.query(Project).filter(Project.id == id).delete()
+        session.commit()
+        session.close()
+        # 删除关联的模块
+        session.query(Module).filter(Module.project == id).delete()
+        session.commit()
+        session.close()
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})

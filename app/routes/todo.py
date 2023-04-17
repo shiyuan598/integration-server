@@ -3,7 +3,7 @@
 import json
 from flask import Blueprint, request, jsonify
 from Model import Todo, Project, App_process, User
-from sqlalchemy import func, text, and_, or_, asc, desc, case
+from sqlalchemy import func, text, or_, asc, desc, case
 from sqlalchemy.orm import aliased
 from common.utils import generateEntries
 from exts import db

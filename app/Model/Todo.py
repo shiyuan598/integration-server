@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, func
+from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.orm import class_mapper
 from exts import db
 

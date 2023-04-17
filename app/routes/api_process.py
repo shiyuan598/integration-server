@@ -2,7 +2,7 @@
 # 接口集成
 from flask import Blueprint, request, jsonify
 from Model import Api_process, Project, Process_state
-from sqlalchemy import func, text, and_, or_, asc, desc
+from sqlalchemy import func, text, or_, asc, desc
 from common.utils import generateEntries
 from exts import db
 session = db.session

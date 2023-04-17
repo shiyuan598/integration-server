@@ -2,7 +2,7 @@
 # 应用集成
 from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state, User
-from sqlalchemy import func, text, and_, or_, asc, desc
+from sqlalchemy import func, text, or_, asc, desc
 from common.utils import generateEntries
 from .todo import create_todo
 from exts import db

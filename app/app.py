@@ -4,7 +4,7 @@ import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from exts import db
-from flask_sqlalchemy import get_debug_queries, SQLAlchemy
+from flask_sqlalchemy import get_debug_queries
 import time
 from routes.blueprint import registerRoute
 from routes.user import check_token

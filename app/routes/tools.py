@@ -5,7 +5,6 @@ from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMult
 from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getUri
 from Model import Api_process, App_process
-from sqlalchemy import func, text, and_, or_, asc, desc
 from exts import db
 session = db.session
 
