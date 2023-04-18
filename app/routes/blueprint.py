@@ -14,6 +14,10 @@ def registerRoute(app):
     from .project import project
     app.register_blueprint(project, url_prefix=BASE_URL_PREFIX + "/project")
 
+     # 模块
+    from .module import module
+    app.register_blueprint(module, url_prefix=BASE_URL_PREFIX + "/module")
+
     # 待办
     from .todo import todo
     app.register_blueprint(todo, url_prefix=BASE_URL_PREFIX + "/todo")
