@@ -56,18 +56,18 @@ def search():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 查询所有用户
+# 查询所有用户，不分页
 @user.route('/list/all', methods=["GET"])
 def search_all():
     try:
-        result = session.query(User.id, User.name, User.username, User.password, User.telephone, User.role,
+        result = session.query(User.id, User.name, User.username, User.telephone, User.role,
         case(
                 (User.role == 0, "平台管理员"),
                 (User.role == 1, "普通用户")
             ).label("role_name")
         ).all()
         session.close()
-        data = generateEntries(["id", "name", "username", "password", "telephone", "role", "role_name"], result)
+        data = generateEntries(["id", "name", "username", "telephone", "role", "role_name"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

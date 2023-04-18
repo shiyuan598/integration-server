@@ -51,7 +51,7 @@ def edit():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 删除模块
-@module.route('/delete', methods=["POST"])
+@module.route('/delete', methods=["DELETE", "POST"])
 def delete():
     try:
         id = request.json.get("id")        

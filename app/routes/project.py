@@ -211,7 +211,7 @@ def edit():
         return jsonify({"code": 1, "msg": str(e)})
 
 # 删除项目--会一并删除项目下的所有模块
-@project.route('/delete', methods=["POST"])
+@project.route('/delete', methods=["DELETE", "POST"])
 def delete():
     try:
         id = request.json.get("id")        
