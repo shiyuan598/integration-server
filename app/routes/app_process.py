@@ -2,7 +2,7 @@
 # 应用集成
 from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state, User
-from sqlalchemy import func, text, or_, asc, desc
+from sqlalchemy import func, text, and_, or_, asc, desc
 from common.utils import generateEntries
 from .todo import create_todo
 from exts import db
@@ -73,6 +73,26 @@ def search():
         data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number", "jenkins_url",
         "artifacts_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", "project_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 检查名称是否可用，不存在
+@app_process.route("/version/noexist", methods=["GET"])
+def checkExist():
+    try:
+        project = request.args.get("project")
+        creator = request.args.get("creator")
+        version = request.args.get("version")
+        total = session.query(func.count(Project.id)).filter(
+            and_(
+                App_process.project == project,
+                App_process.creator == creator,
+                App_process.version == version
+                )
+            ).scalar()
+        session.close()
+        return jsonify({"code": 0, "data": (total == 0), "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})

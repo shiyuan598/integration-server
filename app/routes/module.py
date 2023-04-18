@@ -1,11 +1,25 @@
 # coding=utf8
 # 模块管理
 from flask import Blueprint, request, jsonify
-from Model import Module
+from Model import Project, Module
+from sqlalchemy import func, and_
 from exts import db
 session = db.session
 
 module = Blueprint("module", __name__)
+
+# 检查名称是否可用，不存在
+@module.route("/check/noexist", methods=["GET"])
+def checkExist():
+    try:
+        project = request.args.get("project")
+        name = request.args.get("name")
+        total = session.query(func.count(Module.id)).filter(and_(Module.project == project, Module.name == name)).scalar()
+        session.close()
+        return jsonify({"code": 0, "data": (total == 0), "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
 
 # 创建模块
 @module.route('/create', methods=["POST"])

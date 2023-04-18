@@ -164,6 +164,17 @@ def modules_all_type(project_id, type=0):
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
+# 检查名称是否可用，不存在
+@project.route("/check/noexist", methods=["GET"])
+def checkExist():
+    try:
+        name = request.args.get("name")
+        total = session.query(func.count(Project.id)).filter(Project.name == name).scalar()
+        session.close()
+        return jsonify({"code": 0, "data": (total == 0), "msg": "成功"})
+    except Exception as e:
+        session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
 
 # 创建项目
 @project.route('/create', methods=["POST"])
