@@ -25,20 +25,26 @@ def create_page(title, content="", space="ITD", parent_page_id=56111727):
 
 # 根据title获取page_id,如果没有就创建
 def query_or_create_page_by_title(title, parent_page_id, space="ITD"):
-    page = confluence.get_page_by_title(space=space,
-                                    title=title,
-                                    expand='body.storage')
-    if page is None:
-        return create_page(title=title, space=space, parent_page_id=parent_page_id)["id"]
+    try:
+        page = confluence.get_page_by_title(space=space,
+                                        title=title,
+                                        expand='body.storage')
+        if page is None:
+            return create_page(title=title, space=space, parent_page_id=parent_page_id)["id"]
 
-    return page["id"]
+        return page["id"]
+    except Exception as e:
+        print('An exception occurred in query_or_create_page_by_title', str(e), flush=True)
 
 # 获取项目级的页面id
 def get_page_by_title(title, type="App_process"):
-    if type == "App_process":
-        return query_or_create_page_by_title(title=title, space=space, parent_page_id=parent_page_id_app)
-    if type == "Api_process":
-        return query_or_create_page_by_title(title=title, space=space, parent_page_id=parent_page_id_api)
+    try:
+        if type == "App_process":
+            return query_or_create_page_by_title(title=title, space=space, parent_page_id=parent_page_id_app)
+        if type == "Api_process":
+            return query_or_create_page_by_title(title=title, space=space, parent_page_id=parent_page_id_api)
+    except Exception as e:
+        print('An exception occurred in get_page_by_title', str(e), flush=True)
 
 
 # confluence集成平台构建日志

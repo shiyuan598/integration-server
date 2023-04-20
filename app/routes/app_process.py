@@ -40,7 +40,7 @@ def search():
 
         # 查询分页数据
         query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version,
-        App_process.job_name, App_process.build_queue, App_process.build_number, App_process.jenkins_url, App_process.artifacts_url,
+        App_process.job_name, App_process.build_queue, App_process.build_number, App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url,
         App_process.creator, User.name.label("creator_name"), App_process.modules, App_process.state, Process_state.name.label("state_name"),
         App_process.type, App_process.desc, Project.name.label("project_name"),
         func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
@@ -74,7 +74,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number", "jenkins_url",
-        "artifacts_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", "project_name", "create_time", "update_time"], result)
+        "artifacts_url", "confluence_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", "project_name", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
