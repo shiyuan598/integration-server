@@ -4,6 +4,9 @@ from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_, or_, asc, desc
 from common.utils import generateEntries
+
+from common.jenkins_tool import app_process_log
+
 from .todo import create_todo
 from exts import db
 session = db.session
@@ -182,4 +185,14 @@ def modules():
             return jsonify({"code": 0, "data": {"modules": ""}, "msg": "成功"})
     except Exception as e:
         session.rollback()
+        return jsonify({"code": 1, "msg": str(e)})
+
+@app_process.route('/log', methods=["GET"])
+def log():
+    try:
+        id = request.args.get("id")
+        app_process_log(id)
+        
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})

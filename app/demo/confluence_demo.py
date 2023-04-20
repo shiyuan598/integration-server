@@ -48,19 +48,21 @@ suf = '}]]></ac:plain-text-body></ac:structured-macro><p><br /></p>'
 content = pre + json.dumps(config, indent=4) + suf
 parent_page = {"id": 56111727}
 
-new_page = confluence.create_page(space=space, title=title, body=content, parent_id=parent_page['id'])
-print("\n\npage:\n", new_page["_links"]["webui"])
-print("\n\nnew_page:", new_page)
+# new_page = confluence.create_page(space=space, title=title, body=content, parent_id=parent_page['id'])
+# print("\n\npage:\n", new_page["_links"]["webui"])
+# print("\n\nnew_page:", new_page)
 
 # print("\n\nnew_page.id:", new_page["id"])
 # page = confluence.get_page_by_id(new_page["id"])
 # print("\n\npage:", page)
 # print("New page created: " + confluence.get_page_url(new_page['id']))
 
-# page = confluence.get_page_by_title(space=space,
-#                                     title="page6",
-#                                     expand='body.storage')
+page = confluence.get_page_by_title(space=space,
+                                    title="GSL4_X86【应用】")
 # print("\n\npage:\n", page["_links"]["webui"])
+if page is None:
+    print("Not Found!")
+print("\n", page)
 
 # print("\n\npage:\n", page["body"]["storage"]["value"])
 

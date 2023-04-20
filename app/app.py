@@ -31,7 +31,7 @@ def hello():
 
 
 NOT_CHECK_URL = [
-    "/", "/api/user/login", "/api/user/register", "/api/user/list/all",
+    "/", "/api/user/login", "/api/user/register", "/api/user/list/all", "/api/app_process/log",
     "/api/user/check/noexist", "/api/user/check/correct", "/api/user/resetpwd"
 ]
 ALLOW_METHOD = ["GET", "POST", "DELETE", "PUT"]
