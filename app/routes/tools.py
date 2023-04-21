@@ -1,5 +1,6 @@
 # coding=utf8
 # 工具接口，gitlab/jenkins/artifactory/confluence
+import datetime
 from flask import Blueprint, request, jsonify
 from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects
 from common.jenkins_tool import build
@@ -93,4 +94,20 @@ def artifacts_uri():
 
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 短信状态回调
+@tools.route('/sms/callback', methods=["POST"])
+def callback():
+    try:
+        mobile = request.json[0].get("mobile")
+        user_receive_time = request.json[0].get("user_receive_time")
+        report_status = request.json[0].get("report_status")
+        errmsg = request.json[0].get("errmsg")
+        description = request.json[0].get("description")
+        sid = request.json[0].get("sid")
+        print("\n短信下发状态：\n当前时间：{}, 手机号：{}, 接收时间：{}, 状态：{}, 错误消息：{}, 描述：{}, SID：{}".format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), mobile, user_receive_time, report_status, errmsg, description, sid), flush=True)
+        return jsonify({"code": 0, "msg": "成功"})
+    except Exception as e:
+        print("短信下发状态错误：", str(e), flush=True)
         return jsonify({"code": 1, "msg": str(e)})

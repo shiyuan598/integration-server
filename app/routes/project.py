@@ -131,7 +131,7 @@ def modules_all(project_id):
         project_id = request.view_args['project_id']
         types = request.args.getlist("type")
         # 查询所有数据
-        query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner, User.name.label("owner_name")
+        query = session.query(Module.id, Module.name, Module.type, Module.git, Module.owner, User.name.label("owner_name"), User.telephone.label("owner_phone")
         ).join(
             User,
             User.id == Module.owner,
@@ -142,7 +142,7 @@ def modules_all(project_id):
             query = query.filter(Module.type.in_(types))
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "type", "git", "owner", "owner_name"], result)
+        data = generateEntries(["id", "name", "type", "git", "owner", "owner_name", "owner_phone"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

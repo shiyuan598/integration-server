@@ -11,6 +11,7 @@ pip3 install -i https://mirrors.tencent.com/pypi/simple/ --upgrade tencentcloud-
 
 参考：腾讯云短信服务SDK[地址(https://cloud.tencent.com/document/product/382)]
 腾讯云账户管理[地址(https://console.cloud.tencent.com/smsv2)]
+腾讯云密钥管理[地址(https://console.cloud.tencent.com/cam/capi)]
 
 2.启动
 开发环境

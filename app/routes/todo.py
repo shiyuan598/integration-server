@@ -6,6 +6,7 @@ from Model import Todo, Project, App_process, User
 from sqlalchemy import func, text, or_, asc, desc, case
 from sqlalchemy.orm import aliased
 from common.utils import generateEntries
+from common.sms import sendMessage
 from exts import db
 session = db.session
 
@@ -93,6 +94,8 @@ def create_todo(type, process_id, project, build_type, version, creator, desc, m
             session.add(data)
             session.commit()
             session.close()
+            # TODO: 通知
+            sendMessage(TemplateId="", PhoneNumberSet=[])
     except Exception as e:
         session.rollback()
         print('An exception occurred at create_todo', str(e), flush=True)
@@ -118,7 +121,7 @@ def handle_todo():
         return jsonify({"code": 0, "msg": "成功"})
     except Exception as e:
         session.rollback()
-        print('An exception occurred at create_todo', str(e), flush=True)
+        print('An exception occurred at handle_todo', str(e), flush=True)
 
 # 更新应用集成的模块
 def update_app_process_module(id, module_name, version, release_note):
@@ -135,10 +138,11 @@ def update_app_process_module(id, module_name, version, release_note):
         for key in keys:
             if modules[key]["version"] is "":
                 state = 0
-        session.query(App_process).filter(App_process.id == id).update({           
+        session.query(App_process).filter(App_process.id == id).update({
             "modules": json.dumps(modules, indent=4),
             "state": state
         })
+        # TODO: 通知
         session.commit()
         session.close()
         return True

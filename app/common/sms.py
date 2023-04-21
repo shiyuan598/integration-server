@@ -15,7 +15,7 @@ from config.setting import SMS_ENABLE
 secretId = "AKIDtc5JI2YrvjKL6bsteARUIveHhspwrXyB"
 secretKey = "BBzZeFckcYP1ObaKp45qLcdQzNWQ5Vhd"
 
-def sendMessage(SmsSdkAppId = "1400788002", SignName = "ZHITO小程序", TemplateId="", TemplateParamSet=[], PhoneNumberSet=[], orderId=""):
+def sendMessage(SmsSdkAppId = "1400814469", SignName = "ZHITO小程序", TemplateId="", TemplateParamSet=[], PhoneNumberSet=[]):
     try:
         if SMS_ENABLE == False:
             return
@@ -48,7 +48,7 @@ def sendMessage(SmsSdkAppId = "1400788002", SignName = "ZHITO小程序", Templat
         resp = client.SendSms(req)
         print("resp:", resp.SendStatusSet[0].Code)
         # 输出json格式的字符串回包
-        print("发送短信：", datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "orederId:", orderId, "result:", resp.to_json_string(), flush=True)
+        print("发送短信：", datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "result:", resp.to_json_string(), flush=True)
 
     except TencentCloudSDKException as err:
         print("短信出错：", err, flush=True)
