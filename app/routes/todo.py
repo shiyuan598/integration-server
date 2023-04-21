@@ -1,6 +1,6 @@
 # coding=utf8
 # 待办
-import json
+import re, json
 from flask import Blueprint, request, jsonify
 from Model import Todo, Project, App_process, User
 from sqlalchemy import func, text, or_, asc, desc, case
@@ -37,8 +37,9 @@ def search():
         S = aliased(User)
         T = aliased(User)
         # 查询分页数据
-        query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.project, Project.name.label("project_name"), Todo.build_type,
-            Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, T.name.label("handler_name"), Todo.desc,
+        query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.project, Project.name.label("project_name"), 
+            Todo.build_type, Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, 
+            T.name.label("handler_name"), T.telephone.label("handler_phone"), Todo.desc,
             func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             case(
@@ -72,7 +73,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", 
-        "creator", "creator_name", "handler", "handler_name", "desc", "create_time", "update_time", "type_name"], result)
+        "creator", "creator_name", "handler", "handler_name", "handler_phone", "desc", "create_time", "update_time", "type_name"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -94,18 +95,19 @@ def create_todo(type, process_id, project, build_type, version, creator, desc, m
             session.add(data)
             session.commit()
             session.close()
-            # TODO: 通知
-            sendMessage(TemplateId="", PhoneNumberSet=[])
+            # 通知模块负责人
+            phone = value["owner_phone"]
+            if check_phone_number(phone):
+                sendMessage(TemplateId="1773455", PhoneNumberSet=['+86' + phone])
     except Exception as e:
         session.rollback()
         print('An exception occurred at create_todo', str(e), flush=True)
 
 # 处理待办消息
 @todo.route('/handle', methods=["POST"])
-# 类型：0-接口集成，1-应用集成
 def handle_todo():
     try:
-        type = request.json.get("type")
+        type = request.json.get("type")# 类型：0-接口集成，1-应用集成
         id = request.json.get("id")
         process_id = request.json.get("process_id")
         module_name = request.json.get("module_name")
@@ -122,12 +124,17 @@ def handle_todo():
     except Exception as e:
         session.rollback()
         print('An exception occurred at handle_todo', str(e), flush=True)
+        return jsonify({"code": 1, "msg": str(e)})
 
 # 更新应用集成的模块
 def update_app_process_module(id, module_name, version, release_note):
     try:
-        result = session.query(App_process.modules).filter(App_process.id == id).all()
-        modules = json.loads(result[0].modules)
+        result = session.query(App_process.modules, User.name, User.telephone).join(
+            User,
+            User.id == App_process.creator,
+            isouter=True
+        ).filter(App_process.id == id).all()
+        modules = json.loads(result[0]["modules"])
         print("\n\n modules:", modules, "\n\n", type(modules))
         modules[module_name]["version"] = version
         modules[module_name]["release_note"] = release_note
@@ -142,10 +149,35 @@ def update_app_process_module(id, module_name, version, release_note):
             "modules": json.dumps(modules, indent=4),
             "state": state
         })
-        # TODO: 通知
         session.commit()
         session.close()
+        # 短信通知流程发起人
+        phone = result[0]["telephone"]
+        if check_phone_number(phone):
+            sendMessage(TemplateId="1773476", PhoneNumberSet=['+86' + phone])
         return True
     except Exception as e:
         session.rollback()
         return False
+
+# 催办待办消息
+@todo.route('/prompt', methods=["POST"])
+def prompt_todo():
+    try:
+        type = request.json.get("type") # 类型：0-接口集成，1-应用集成
+        project_name = request.json.get("project_name")
+        version = request.json.get("version")
+        module_name = request.json.get("module_name")
+        phone = request.json.get("phone")
+        if check_phone_number(phone):
+            sendMessage(TemplateId="1773455", PhoneNumberSet=['+86' + phone])
+        return jsonify({"code": 0, "data": True, "msg": "成功"})
+    except Exception as e:
+        print('An exception occurred at handle_todo', str(e), flush=True)
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 检查号码是否有效
+def check_phone_number(phone):
+    pattern = '^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$'
+    res = re.match(pattern, phone)
+    return (res is not None)
