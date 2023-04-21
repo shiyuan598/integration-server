@@ -87,7 +87,7 @@ def checkExist():
         project = request.args.get("project")
         creator = request.args.get("creator")
         version = request.args.get("version")
-        total = session.query(func.count(Project.id)).filter(
+        total = session.query(func.count(App_process.id)).filter(
             and_(
                 App_process.project == project,
                 App_process.creator == creator,
