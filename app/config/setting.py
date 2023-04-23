@@ -8,7 +8,7 @@ MYSQL_DB = 'integration'
 # dialect+driver://username:password@host:port/database
 DB_URI = "mysql+pymysql://{username}:{password}@{host}:{port}/{db}?charset=utf8".format(username=MYSQL_USER,password=MYSQL_PASSWD,host=MYSQL_HOST,port=MYSQL_PORT,db=MYSQL_DB)
 # 短信通知
-SMS_ENABLE = True
+SMS_ENABLE = False
 # 项目配置
 DEBUG = False
 SQLALCHEMY_DATABASE_URI = DB_URI

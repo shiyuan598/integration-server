@@ -39,7 +39,8 @@ def search():
         # 查询分页数据
         query = session.query(Todo.id, Todo.type, Todo.process_id, Todo.project, Project.name.label("project_name"), 
             Todo.build_type, Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, 
-            T.name.label("handler_name"), T.telephone.label("handler_phone"), Todo.desc,
+            T.name.label("handler_name"), T.telephone.label("handler_phone"), Todo.desc, 
+            (func.TIMESTAMPDIFF(text("MINUTE"), Todo.prompt_time, func.now()) > 60).label("enable_prompt"),
             func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             case(
@@ -72,8 +73,8 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", 
-        "creator", "creator_name", "handler", "handler_name", "handler_phone", "desc", "create_time", "update_time", "type_name"], result)
+        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", "creator", 
+        "creator_name", "handler", "handler_name", "handler_phone", "desc", "enable_prompt", "create_time", "update_time", "type_name"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -135,10 +136,8 @@ def update_app_process_module(id, module_name, version, release_note):
             isouter=True
         ).filter(App_process.id == id).all()
         modules = json.loads(result[0]["modules"])
-        print("\n\n modules:", modules, "\n\n", type(modules))
         modules[module_name]["version"] = version
         modules[module_name]["release_note"] = release_note
-        print("\n\n modules:", json.dumps(modules, indent=4), "\n\n", type(modules))
         keys = modules.keys()
         state = 1
         # 所有模块信息填写完整后状态为已就绪
@@ -165,14 +164,21 @@ def update_app_process_module(id, module_name, version, release_note):
 def prompt_todo():
     try:
         type = request.json.get("type") # 类型：0-接口集成，1-应用集成
+        id = request.json.get("id")
         project_name = request.json.get("project_name")
         version = request.json.get("version")
         module_name = request.json.get("module_name")
         phone = request.json.get("phone")
+        # 更新待办消息的prompt_time
+        session.query(Todo).filter(Todo.id == id).update({"prompt_time": func.now()})
+        session.commit()
+        session.close()
+        # 发送短信
         if check_phone_number(phone):
             sendMessage(TemplateId="1773455", PhoneNumberSet=['+86' + phone])
         return jsonify({"code": 0, "data": True, "msg": "成功"})
     except Exception as e:
+        session.rollback()
         print('An exception occurred at handle_todo', str(e), flush=True)
         return jsonify({"code": 1, "msg": str(e)})
 

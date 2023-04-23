@@ -18,6 +18,7 @@ class Todo(db.Model):
     state = Column(Integer, nullable=False, server_default="0", comment="状态：0-未处理，1-已处理")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
+    prompt_time = Column(DateTime, server_default=func.now(), comment="提醒时间")
     
     def as_dict(obj):
         return dict((col.name, getattr(obj, col.name)) for col in class_mapper(obj.__class__).mapped_table.c)
