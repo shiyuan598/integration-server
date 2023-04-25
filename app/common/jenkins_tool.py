@@ -185,18 +185,24 @@ def app_process_log(id):
 def generator_build_config(project_name, version, build_type, modulesStr):
     try:
         modules = json.loads(modulesStr)
+        config = {}
         base = {}
         common = {}
         for item, value in modules.items():
-            if value["type"] == 0:
+            if value["type"] == 3:
+                config[item] = {
+                    "url": value["url"],
+                    "branch": value["version"],
+                }
+            elif value["type"] == 0:
                 base[item] = {
                     "url": value["url"],
-                    "version": value["version"],
+                    "branch": value["version"],
                 }
-            else:
+            elif value["type"] == 2:
                 common[item] = {
                     "url": value["url"],
-                    "version": value["version"],
+                    "branch": value["version"],
                     "owner": value["owner_name"],
                     "release_note": value["release_note"]
                 }
@@ -205,6 +211,7 @@ def generator_build_config(project_name, version, build_type, modulesStr):
             "project": project_name,
             "version": version,
             "build_type": build_type,
+            "config": config,
             "base": base,
             "modules": common
         }

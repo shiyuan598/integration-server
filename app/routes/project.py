@@ -94,9 +94,10 @@ def modules(project_id):
         # 查询分页数据
         query = session.query(Module.id, Module.name, Module.git, Module.owner, User.name.label("owner_name"), Module.desc,
         Module.type, case(
-                (Module.type == 0, "Base"),
+                (Module.type == 0, "基础"),
                 (Module.type == 1, "接口"),
-                (Module.type == 2, "应用")
+                (Module.type == 2, "应用"),
+                (Module.type == 3, "配置")
         ).label("type_name"),
         func.date_format(func.date_add(Module.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
