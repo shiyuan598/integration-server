@@ -45,9 +45,9 @@ def branch_tag():
 @tools.route('/jenkins/build_job', methods=["POST"])
 def build_job():
     try:
-        process_type = int(request.json.get("process_type", 0))
-        process_id = int(request.json.get("process_id", 0))
-        job = request.json.get("job", "integration_test4")
+        process_type = int(request.json.get("process_type"))
+        process_id = int(request.json.get("process_id"))
+        job = request.json.get("job")
         parameters = request.json.get("parameters")
         data = build(job, parameters)
         # 更新集成流程中的build_number, build_queue
@@ -68,7 +68,6 @@ def build_job():
                 })
                 session.commit()
                 session.close()
-        
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()

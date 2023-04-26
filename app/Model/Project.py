@@ -9,7 +9,6 @@ class Project(db.Model):
     name = Column(String(50), nullable=False, comment="名称", unique=True)
     platform = Column(String(50), nullable=False, comment="平台")
     job_name = Column(Text, nullable=False, comment="jenkins构建任务的名称")
-    artifacts_path = Column(Text, nullable=False, comment="Artifactory Repository Path")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     owner = Column(Integer, nullable=False, comment="负责人")

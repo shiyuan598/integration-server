@@ -30,7 +30,7 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path, Project.owner, User.name.label("owner_name"), Project.desc,
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.owner, User.name.label("owner_name"), Project.desc,
         func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
         ).join(
@@ -51,7 +51,7 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "owner", "owner_name", "desc", "create_time", "update_time"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "owner", "owner_name", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -62,11 +62,11 @@ def search():
 def search_all():
     try:
         # 查询所有数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.artifacts_path,
-        func.concat(artifactory_base_url, "/", Project.artifacts_path).label("artifacts_url"), Project.owner)
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, 
+        func.concat(artifactory_base_url, "/", Project.name, "cicd/").label("artifacts_url"), Project.owner)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_path", "artifacts_url", "owner"], result)
+        data = generateEntries(["id", "name", "platform", "job_name", "artifacts_url", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -184,10 +184,9 @@ def create():
         name = request.json.get("name")
         platform = request.json.get("platform")
         job_name = request.json.get("job_name")
-        artifacts_path = request.json.get("artifacts_path")
         owner = request.json.get("owner")
         desc = request.json.get("desc")
-        data = Project(name=name, platform=platform,job_name=job_name,artifacts_path=artifacts_path, owner=owner, desc=desc)
+        data = Project(name=name, platform=platform,job_name=job_name, owner=owner, desc=desc)
         session.add(data)
         session.commit()
         session.close()
@@ -204,14 +203,12 @@ def edit():
         name = request.json.get("name")
         platform = request.json.get("platform")
         job_name = request.json.get("job_name")
-        artifacts_path = request.json.get("artifacts_path")
         owner = request.json.get("owner")
         desc = request.json.get("desc")
         session.query(Project).filter(Project.id == id).update({
             "name": name,
             "platform": platform,
             "job_name": job_name,
-            "artifacts_path": artifacts_path,
             "owner": owner,
             "desc": desc
         })

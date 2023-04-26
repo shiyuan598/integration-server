@@ -39,10 +39,10 @@ config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
 # nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
 # print("\nextBuildNumber: ", nextBuildNumber)
 
-# # 构建job
-# build_id = server.build_job(job, parameters={"username": "wangshiyuan", "date": "2023-03-20"})
-# # build_id = server.build_job(job)
-# print("\nbuild_id: ", build_id) #16581
+# 构建job
+build_id = server.build_job("Integration/Sweep_X86_64", parameters={"username": "wangshiyuan", "date": "2023-03-20"})
+# build_id = server.build_job(job)
+print("\nbuild_id: ", build_id) #16581
 
 # item = server.get_queue_item(number=build_id)
 # print("\nqueue item:", item)
@@ -71,6 +71,6 @@ config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
 # print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], build_info["url"])
 
 
-build_info = server.get_build_info(job, 59)
-print("\n\n", build_info, "\n\n")
-print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"])
+# build_info = server.get_build_info(job, 59)
+# print("\n\n", build_info, "\n\n")
+# print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"])
