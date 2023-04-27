@@ -12,6 +12,8 @@ class Project(db.Model):
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     owner = Column(Integer, nullable=False, comment="负责人")
+    num = Column(Integer, comment="数量")
+    size = Column(Integer, comment="大小")
     desc = Column(String(100), comment="描述")
 
     def as_dict(obj):

@@ -10,10 +10,14 @@ from routes.blueprint import registerRoute
 from routes.user import check_token
 from apscheduler.schedulers.background import BackgroundScheduler
 from common.jenkins_tool import schedule_task
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object('config.setting')
 db.init_app(app)
+
+# 数据迁移
+migrate = Migrate(app, db)
 
 # 全局允许跨域
 CORS(app, supports_credentials=True)
