@@ -63,7 +63,7 @@ def search_all():
     try:
         # 查询所有数据
         query = session.query(Project.id, Project.name, Project.platform, Project.job_name, 
-        func.concat(artifactory_base_url, "/", Project.name, "cicd/").label("artifacts_url"), Project.owner)
+        func.concat(artifactory_base_url, "/", Project.name, "/cicd/").label("artifacts_url"), Project.owner)
         result = query.all()
         session.close()
         data = generateEntries(["id", "name", "platform", "job_name", "artifacts_url", "owner"], result)

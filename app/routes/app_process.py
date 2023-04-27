@@ -21,8 +21,8 @@ def search():
         pageNo = int(request.args.get("pageNo", 1))
         pageSize = int(request.args.get("pageSize", 10))
         name = request.args.get("name", "")
-        orderField = request.args.get("order", "")
-        orderSeq = request.args.get("seq", "")
+        orderField = request.args.get("order", "id")
+        orderSeq = request.args.get("seq", "descend")
         user_id = int(request.args.get("user_id"))
         # 查询总数据量
         query = session.query(func.count(App_process.id)).filter(or_(
