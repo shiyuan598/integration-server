@@ -4,32 +4,14 @@ jenkins_server_url = "https://jenkins.zhito.com"
 user_id = "wangshiyuan"
 api_token = "11bdffee022bd22472efdf2ebd99354522"
 server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
-job = "integration_test4"
+job = "Integration/HWL4_X86"
 
-config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
-<flow-definition plugin=\"workflow-job@1282.ve6d865025906\">\
-  <description></description>\
-  <keepDependencies>false</keepDependencies>\
-  <properties>\
-    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin=\"gitlab-plugin@1.7.8\">\
-      <gitLabConnection>zhito-gitlab</gitLabConnection>\
-      <jobCredentialId></jobCredentialId>\
-      <useAlternativeCredential>false</useAlternativeCredential>\
-    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>\
-  </properties>\
-  <definition class=\"org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition\" plugin=\"workflow-cps@3641.vf58904a_b_b_5d8\">\
-    <script></script>\
-    <sandbox>true</sandbox>\
-  </definition>\
-  <triggers/>\
-  <disabled>false</disabled>\
-</flow-definition>"
 
 # 创建job
 # server.create_job(job, config_xml=config_xml)
 
 # 获取job配置，job名需要包含路径
-# config = server.get_job_config("gerrit_zhito-L4/adm")
+# config = server.get_job_config(job)
 # print(config)
 
 # job_info = server.get_job_info(job)
@@ -39,10 +21,10 @@ config_xml = "<?xml version='1.1' encoding='UTF-8'?>\
 # nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
 # print("\nextBuildNumber: ", nextBuildNumber)
 
-# 构建job
-build_id = server.build_job("Integration/Sweep_X86_64", parameters={"username": "wangshiyuan", "date": "2023-03-20"})
-# build_id = server.build_job(job)
-print("\nbuild_id: ", build_id) #16581
+# # 构建job
+# build_id = server.build_job("Integration/Sweep_X86_64", parameters={"username": "wangshiyuan", "date": "2023-03-20"})
+# # build_id = server.build_job(job)
+# print("\nbuild_id: ", build_id) #16581
 
 # item = server.get_queue_item(number=build_id)
 # print("\nqueue item:", item)
@@ -52,8 +34,14 @@ print("\nbuild_id: ", build_id) #16581
 # print("\nbuild_number: ", build_number)
 
 # # 查询build状态及结果
-# build_info = server.get_build_info(job, build_number)
+build_info = server.get_build_info(job, 9, depth=0)
 # print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n", build_info)
+print("\n\n: ", build_info["duration"], build_info["progress"])
+
+# # 查询stage
+# stage_info = server.get_build_stages(job, 9)
+# print("\nstage_info:\n", stage_info)
+
 
 #  办法：
 #  1.build前假定该次build_number = nextBuildNumber, 记录queueId
