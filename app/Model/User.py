@@ -11,7 +11,7 @@ class User(db.Model):
     password = Column(String(50), nullable=False, comment="密码")
     telephone = Column(String(50), nullable=False, comment="电话号码")
     role = Column(Integer, nullable=False, comment="0:平台管理员, 1:开发人员")
-    token = Column(String(100), comment="验证登录有效性的token")
+    token = Column(String(100), comment="验证登录有效性")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     desc = Column(String(100), comment="描述")
