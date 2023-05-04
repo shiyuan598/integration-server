@@ -23,6 +23,24 @@ python3 app.py
 nohup gunicorn -c gunicorn.conf app:app > log_info.log 0<&1 2>&1 &
 ```
 
+3.迁移
+3.1安装
+```
+pip3 install flask-migrate --index https://pypi.tuna.tsinghua.edu.cn/simple
+```
+3.2初始化Migrate
+from flask_migrate import Migrate
+...
+# 数据迁移
+migrate = Migrate(app, db)
+
+3.3初始化数据库
+```bash
+flask db init 
+```
+或 python -m flask db init
+
+
 ##### 文档
 1.python-gitlab: https://python-gitlab.readthedocs.io/en/stable/gl_objects/branches.html
 2.python-jenkins: https://python-jenkins.readthedocs.io/en/latest/api.html#jenkins.Jenkins.get_queue_item
