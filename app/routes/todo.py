@@ -19,7 +19,7 @@ def search():
         # 接收参数
         pageNo = int(request.args.get("pageNo", 1))
         pageSize = int(request.args.get("pageSize", 10))
-        orderField = request.args.get("order", "")
+        orderField = request.args.get("order", "id")
         orderSeq = request.args.get("seq", "")
         filter = request.args.get("state", 0)
         user_id = int(request.args.get("user_id"))
@@ -64,12 +64,19 @@ def search():
         if filter != "": # 查询历史待办
             query = query.filter(Todo.state == int(filter))
 
+        # # 设置排序
+        # if orderField != "" and orderSeq != "":
+        #     if orderSeq == "ascend":
+        #         query = query.order_by(asc(orderField))
+        #     else:
+        #         query = query.order_by(desc(orderField))
         # 设置排序
         if orderField != "" and orderSeq != "":
+            orderField = "todo." + orderField
             if orderSeq == "ascend":
-                query = query.order_by(asc(orderField))
+                query = query.order_by(asc(text(orderField)))
             else:
-                query = query.order_by(desc(orderField))
+                query = query.order_by(desc(text(orderField)))
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()

@@ -66,11 +66,11 @@ def search():
         )
         # 设置排序
         if orderField != "" and orderSeq != "":
+            orderField = "app_process." + orderField
             if orderSeq == "ascend":
-                query = query.order_by(asc(orderField))
+                query = query.order_by(asc(text(orderField)))
             else:
-                query = query.order_by(desc(orderField))
-        
+                query = query.order_by(desc(text(orderField)))
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number", "jenkins_url",

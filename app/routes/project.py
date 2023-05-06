@@ -44,11 +44,11 @@ def search():
 
         # 设置排序
         if orderField != "" and orderSeq != "":
+            orderField = "project." + orderField
             if orderSeq == "ascend":
-                query = query.order_by(asc(orderField))
+                query = query.order_by(asc(text(orderField)))
             else:
-                query = query.order_by(desc(orderField))
-        
+                query = query.order_by(desc(text(orderField)))
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "name", "platform", "job_name", "owner", "owner_name", "desc", "create_time", "update_time"], result)
@@ -81,7 +81,7 @@ def modules(project_id):
         pageNo = int(request.args.get("pageNo", 1))
         pageSize = int(request.args.get("pageSize", 10))
         name = request.args.get("name", "")
-        orderField = request.args.get("order", "")
+        orderField = request.args.get("order", "id")
         orderSeq = request.args.get("seq", "")
         # 查询总数据量
         total = session.query(func.count(Module.id)).filter(or_(
@@ -111,10 +111,11 @@ def modules(project_id):
 
         # 设置排序
         if orderField != "" and orderSeq != "":
+            orderField = "module." + orderField
             if orderSeq == "ascend":
-                query = query.order_by(asc(orderField))
+                query = query.order_by(asc(text(orderField)))
             else:
-                query = query.order_by(desc(orderField))
+                query = query.order_by(desc(text(orderField)))
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()

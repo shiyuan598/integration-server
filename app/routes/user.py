@@ -4,7 +4,7 @@ import random
 # 用户
 from flask import Blueprint, request, jsonify
 from Model import User
-from sqlalchemy import func, case, and_, or_, asc, desc
+from sqlalchemy import func, case, text, and_, or_, asc, desc
 from common.utils import generateEntries
 from exts import db
 session = db.session
@@ -19,8 +19,8 @@ def search():
         pageNo = int(request.args.get("pageNo", 1))
         pageSize = int(request.args.get("pageSize", 10))
         name = request.args.get("name", "")
-        orderField = request.args.get("order", "")
-        orderSeq = request.args.get("seq", "")
+        orderField = request.args.get("order", "id")
+        orderSeq = request.args.get("seq", "ascend")
         # 查询总数据量
         total = session.query(func.count(User.id)).filter(or_(
             User.name.like("%{}%".format(name)),
@@ -43,11 +43,11 @@ def search():
 
         # 设置排序
         if orderField != "" and orderSeq != "":
+            orderField = "user." + orderField
             if orderSeq == "ascend":
-                query = query.order_by(asc(orderField))
+                query = query.order_by(asc(text(orderField)))
             else:
-                query = query.order_by(desc(orderField))
-        
+                query = query.order_by(desc(text(orderField)))
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "name", "username", "telephone", "role", "role_name"], result)
