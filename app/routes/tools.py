@@ -39,7 +39,6 @@ def branch_tag():
         # 获取参数：
         projects = request.args.getlist("projects")
         project_names = projects[0].split(",")
-        # print("project params:\n", projects[0].split(","), "\n")
 
         # 从redis缓存中查询
         cache_result = {} # 缓存中取的值
@@ -59,7 +58,7 @@ def branch_tag():
         if len(nocache_project) > 0:
             nocache_result = getBranchesTagsOfMultiProjects(nocache_project)
             for key, value in nocache_result.items():
-                res = redis_set(key, json.dumps(value))
+                res = redis_set(key, json.dumps(value).encode("utf-8"))
                 print(f"\n设置缓存{key}, {res}\n")
         # 把两种方式获取的数据合并
         data = {**cache_result, **nocache_result}
