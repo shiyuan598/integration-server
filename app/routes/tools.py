@@ -1,10 +1,11 @@
 # coding=utf8
 # 工具接口，gitlab/jenkins/artifactory/confluence
-import datetime
+import datetime, json
 from flask import Blueprint, request, jsonify
 from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects
 from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getUri
+from common.redis_tool import redis_get, redis_set
 from Model import Api_process, App_process
 from exts import db
 session = db.session
@@ -35,8 +36,33 @@ def tag():
 @tools.route('/gitlab/multiple/branch_tag', methods=["GET"])
 def branch_tag():
     try:
+        # 获取参数：
         projects = request.args.getlist("projects")
-        data = getBranchesTagsOfMultiProjects(projects[0].split(","))
+        project_names = projects[0].split(",")
+        # print("project params:\n", projects[0].split(","), "\n")
+
+        # 从redis缓存中查询
+        cache_result = {} # 缓存中取的值
+        nocache_result = {} # 通过接口查询的值
+        nocache_project = [] # 缓存中没有值的项目名称
+        for project_name in project_names:
+            cache_data = redis_get(project_name)
+            if cache_data != None:
+                # 缓存中有就使用缓存数据
+                cache_result[project_name] = json.loads(cache_data.decode("utf-8"))
+                print(f"\n从**缓存**中获取到{project_name}的数据\n")
+            else:
+                # 缓存中没有就记录下项目名称一起查询
+                print(f"\n从**接口**中查询{project_name}的数据\n")
+                nocache_project.append(project_name)
+        # 没有缓存的就通过api查询，并更新到缓存中
+        if len(nocache_project) > 0:
+            nocache_result = getBranchesTagsOfMultiProjects(nocache_project)
+            for key, value in nocache_result.items():
+                res = redis_set(key, json.dumps(value))
+                print(f"\n设置缓存{key}, {res}\n")
+        # 把两种方式获取的数据合并
+        data = {**cache_result, **nocache_result}
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})
