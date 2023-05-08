@@ -1,12 +1,15 @@
 # coding=utf8
 # MySQL配置
-MYSQL_HOST = '172.16.12.84'
-MYSQL_PORT = '3307'
+MYSQL_HOST = '127.0.0.1'
+MYSQL_PORT = '3331'
 MYSQL_USER = 'root'
 MYSQL_PASSWD = '123456'
 MYSQL_DB = 'integration'
 # dialect+driver://username:password@host:port/database
 DB_URI = "mysql+pymysql://{username}:{password}@{host}:{port}/{db}?charset=utf8".format(username=MYSQL_USER,password=MYSQL_PASSWD,host=MYSQL_HOST,port=MYSQL_PORT,db=MYSQL_DB)
+# Redis配置
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6378
 # 短信通知
 SMS_ENABLE = False
 # 项目配置

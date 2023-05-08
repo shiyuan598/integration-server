@@ -38,7 +38,7 @@ def getAllTags(project_name_with_namespace):
     
 
 # 一次查询多个项目的所有分支和tag
-def getBranchesTagsOfMultiProjects2(project_names):
+def multiGetBranchesTags2(project_names):
     try:
         start = time.clock()
         # 先列出所有项目
@@ -62,15 +62,15 @@ def getBranchesTagsOfMultiProjects2(project_names):
                 }
         end = time.clock()
         runTime = end - start
-        print("\n getBranchesTagsOfMultiProjects2 run time:", runTime)
+        print("\n multiGetBranchesTags2 run time:", runTime)
         return result
     except Exception as e:
-        print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e), flush=True)
+        print('An exception occurred in gitlab multiGetBranchesTags2', str(e), flush=True)
         return {"branches": [], "tags": []}
 
 
 # 一次查询多个项目的所有分支和tag
-def getBranchesTagsOfMultiProjects(project_names):
+def multiGetBranchesTags(project_names):
     try:
         start = time.clock()
         result = {}
@@ -92,8 +92,8 @@ def getBranchesTagsOfMultiProjects(project_names):
             }
         end = time.clock()
         runTime = end - start
-        print("\n getBranchesTagsOfMultiProjects method run time:", runTime)
+        print("\n multiGetBranchesTags method run time:", runTime)
         return result
     except Exception as e:
-        print('An exception occurred in gitlab getBranchesTagsOfMultiProjects', str(e), flush=True)
+        print('An exception occurred in gitlab multiGetBranchesTags', str(e), flush=True)
         return {"branches": [], "tags": []}

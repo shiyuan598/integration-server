@@ -2,7 +2,7 @@
 # 工具接口，gitlab/jenkins/artifactory/confluence
 import datetime, json
 from flask import Blueprint, request, jsonify
-from common.gitlab_tool import getAllBranches, getAllTags, getBranchesTagsOfMultiProjects
+from common.gitlab_tool import getAllBranches, getAllTags, multiGetBranchesTags
 from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getUri
 from common.redis_tool import redis_get, redis_set
@@ -39,24 +39,28 @@ def branch_tag():
         # 获取参数：
         projects = request.args.getlist("projects")
         project_names = projects[0].split(",")
+        use_cache = request.args.get("cache", "true")
 
         # 从redis缓存中查询
         cache_result = {} # 缓存中取的值
         nocache_result = {} # 通过接口查询的值
         nocache_project = [] # 缓存中没有值的项目名称
-        for project_name in project_names:
-            cache_data = redis_get(project_name)
-            if cache_data != None:
-                # 缓存中有就使用缓存数据
-                cache_result[project_name] = json.loads(cache_data.decode("utf-8"))
-                print(f"\n从**缓存**中获取到{project_name}的数据\n")
-            else:
-                # 缓存中没有就记录下项目名称一起查询
-                print(f"\n从**接口**中查询{project_name}的数据\n")
-                nocache_project.append(project_name)
+        if use_cache == "true":
+            for project_name in project_names:
+                cache_data = redis_get(project_name)
+                if cache_data != None:
+                    # 缓存中有就使用缓存数据
+                    cache_result[project_name] = json.loads(cache_data.decode("utf-8"))
+                    print(f"\n从**缓存**中获取到{project_name}的数据\n")
+                else:
+                    # 缓存中没有就记录下项目名称一起查询
+                    print(f"\n从**接口**中查询{project_name}的数据\n")
+                    nocache_project.append(project_name)
+        else:
+            nocache_project = project_names
         # 没有缓存的就通过api查询，并更新到缓存中
         if len(nocache_project) > 0:
-            nocache_result = getBranchesTagsOfMultiProjects(nocache_project)
+            nocache_result = multiGetBranchesTags(nocache_project)
             for key, value in nocache_result.items():
                 res = redis_set(key, json.dumps(value).encode("utf-8"))
                 print(f"\n设置缓存{key}, {res}\n")

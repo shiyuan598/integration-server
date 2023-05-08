@@ -1,6 +1,7 @@
 from redis import Redis
+from config.setting import REDIS_HOST, REDIS_PORT
 
-redis = Redis(host="127.0.0.1", port=6378)
+redis = Redis(host=REDIS_HOST, port=REDIS_PORT)
 
 def redis_get(key):
     try:
