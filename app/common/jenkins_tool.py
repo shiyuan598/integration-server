@@ -31,40 +31,48 @@ def build(job, parameters):
 def update_build_state(data, type="Api_process"):
     try:
         for item in data:
-            info = get_build_info(item[1], item[2], item[3])
+            id = item[0]
+            job_name = item[1]
+            build_number = item[2]
+            build_queue = item[3]
+            jenkins_url = item[5]
+            info = get_build_info(job_name, build_number, build_queue)
+            print(f"\njenkins_url:{jenkins_url}\n")
             if info is not None:
-                # 单更新url
-                if (info["state"] == 2 and info["jenkins_url"] is not None):
+                # 单更新url, jenkins_url为空时更新
+                if (info["state"] == 2 and info["jenkins_url"] is not None and jenkins_url is None):
                     if type == "Api_process":
-                        session.query(Api_process).filter(Api_process.id == item[0]).update({
+                        session.query(Api_process).filter(Api_process.id == id).update({
                             "jenkins_url": info["jenkins_url"]
                         })
                         session.commit()
                         session.close()
                     if type == "App_process":
-                        session.query(App_process).filter(App_process.id == item[0]).update({
+                        session.query(App_process).filter(App_process.id == id).update({
                             "jenkins_url": info["jenkins_url"]
                         })
+                        print(f"\n单更新url会执行多次！id:{item[0]}, buildId:{item[2]}\n")
                         session.commit()
                         session.close()
                 # 更新url和状态
                 if (info["state"] > 2):
                     if type == "Api_process":
-                        session.query(Api_process).filter(Api_process.id == item[0]).update({
+                        session.query(Api_process).filter(Api_process.id == id).update({
                             "state": info["state"],
                             "jenkins_url": info["jenkins_url"]
                         })
                         session.commit()
                         session.close()
                     if type == "App_process":
-                        session.query(App_process).filter(App_process.id == item[0]).update({
+                        session.query(App_process).filter(App_process.id == id).update({
                             "state": info["state"],
                             "jenkins_url": info["jenkins_url"]
                         })
+                        print(f"\n更新url和状态，不会执行多次！id:{item[0]}, buildId:{item[2]}\n")
                         session.commit()
                         session.close()
                         # 写confluence日志
-                        app_process_log(item[0])
+                        app_process_log(id)
     except Exception as e:
         session.rollback()
         print('An exception occurred at update_build_state ', str(e), flush=True)
@@ -224,7 +232,7 @@ def schedule_task():
     try:
         print("\n", "schedule_task")
         # 待更新状态的数据
-        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type).filter(App_process.state == 2).all()
+        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type, App_process.jenkins_url).filter(App_process.state == 2).all()
         session.close()
         update_build_state(appProcessData, "App_process")
     except Exception as e:
