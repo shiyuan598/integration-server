@@ -8,11 +8,14 @@ python-jenkins==1.7.0
 atlassian-python-api==3.36.0
 flask-ldap3-login
 flask-sqlalchemy==2.5.1
+Flask-SocketIO==5.3.2
 tencentcloud-sdk-python==3.0.821
 tencentcloud-sdk-python-sms==3.0.821
 gunicorn==19.7.1
 gevent==22.10.2
+gevent-websocket==0.10.1
 apscheduler==3.10.1
 alembic==1.7.7
 flask-migrate==4.0.1
 redis==4.3.6
+python-socketio==5.7.2
