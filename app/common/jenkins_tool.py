@@ -28,19 +28,20 @@ def build(job, parameters):
         print('An exception occurred in jenkins build ', str(e), flush=True)
 
 # 更新任务状态
-def update_build_state(data, type="Api_process"):
+def update_build_state(data, socketio, type="Api_process"):
     try:
+        update_ids = [] # 更新数据的Id
         for item in data:
             id = item[0]
             job_name = item[1]
             build_number = item[2]
             build_queue = item[3]
             jenkins_url = item[5]
+            # 获取jenkins构建信息
             info = get_build_info(job_name, build_number, build_queue)
-            print(f"\njenkins_url:{jenkins_url}\n")
             if info is not None:
                 # 单更新url, jenkins_url为空时更新
-                if (info["state"] == 2 and info["jenkins_url"] is not None and jenkins_url is None):
+                if (info["state"] == 2 and info["jenkins_url"] is not None and (jenkins_url is None or jenkins_url == "")):
                     if type == "Api_process":
                         session.query(Api_process).filter(Api_process.id == id).update({
                             "jenkins_url": info["jenkins_url"]
@@ -51,9 +52,9 @@ def update_build_state(data, type="Api_process"):
                         session.query(App_process).filter(App_process.id == id).update({
                             "jenkins_url": info["jenkins_url"]
                         })
-                        print(f"\n单更新url会执行多次！id:{item[0]}, buildId:{item[2]}\n")
                         session.commit()
                         session.close()
+                    update_ids.append(id) # 记录变化的数据id
                 # 更新url和状态
                 if (info["state"] > 2):
                     if type == "Api_process":
@@ -68,11 +69,14 @@ def update_build_state(data, type="Api_process"):
                             "state": info["state"],
                             "jenkins_url": info["jenkins_url"]
                         })
-                        print(f"\n更新url和状态，不会执行多次！id:{item[0]}, buildId:{item[2]}\n")
                         session.commit()
                         session.close()
                         # 写confluence日志
                         app_process_log(id)
+                    update_ids.append(id) # 记录变化的数据id
+        # 实际有更新数据时通知客户端刷新
+        if len(update_ids) > 0:
+            socketio.emit("update_process", {"ids": update_ids, "type": type}, broadcast=True)
     except Exception as e:
         session.rollback()
         print('An exception occurred at update_build_state ', str(e), flush=True)
@@ -228,12 +232,12 @@ def generator_build_config(project_name, version, build_type, modulesStr):
         print('An exception occurred in generator_build_config ', str(e), flush=True)
 
 # 定时任务，查询build状态
-def schedule_task():
+def schedule_task(socketio):
     try:
         print("\n", "schedule_task")
         # 待更新状态的数据
         appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type, App_process.jenkins_url).filter(App_process.state == 2).all()
         session.close()
-        update_build_state(appProcessData, "App_process")
+        update_build_state(appProcessData, socketio, "App_process")
     except Exception as e:
         print('An exception occurred in schedule_task ', str(e), flush=True)

@@ -11,16 +11,20 @@ from routes.user import check_token
 from apscheduler.schedulers.background import BackgroundScheduler
 from common.jenkins_tool import schedule_task
 from flask_migrate import Migrate
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config.from_object('config.setting')
+# 全局允许跨域
+CORS(app, supports_credentials=True)
+
 db.init_app(app)
 
 # 数据迁移
 migrate = Migrate(app, db)
 
-# 全局允许跨域
-CORS(app, supports_credentials=True)
+# websocket
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # 注册路由
 registerRoute(app)
@@ -31,9 +35,15 @@ db.create_all(app=app)
 
 @app.route('/')
 def hello():
+    socketio.emit('my_response', {"message": "call hello"}, broadcast=True)
     return 'Hello World!'
 
+@socketio.on('my_event')
+def handle_my_custom_event(data):
+    print('\nreceived message: ' + str(data))
+    emit('my_response', data, broadcast=True)
 
+# 不需要校验的接口
 NOT_CHECK_URL = [
     "/", "/api/user/login", "/api/user/register", "/api/user/list/all", "/api/app_process/log",
     "/api/user/check/noexist", "/api/user/check/correct", "/api/user/resetpwd"
@@ -76,11 +86,12 @@ def teardown_request(e):
 # 定时任务, 更新流程的状态
 def run_schedule_task():
     with app.app_context():
-        schedule_task()
+        schedule_task(socketio)
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(run_schedule_task, "interval", seconds=60)
 scheduler.start()
 
 if __name__ == '__main__':
-    app.run(host="172.16.12.84", port=9002, debug=False)
+    # app.run(host="172.16.12.84", port=9002, debug=False)
+    socketio.run(app, host="127.0.0.1", port=9002)
