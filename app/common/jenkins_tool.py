@@ -132,6 +132,7 @@ def app_process_log(id):
         result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
             App_process.artifacts_url, User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map
             ).join(
                 Project,
                 App_process.project == Project.id,
@@ -149,7 +150,7 @@ def app_process_log(id):
             ).all()
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "creator_name",
-            "modules", "state_name", "desc", "update_time"], result)[0]
+            "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map"], result)[0]
             
             project_name = data["project_name"]
             version = data["version"]
@@ -161,7 +162,11 @@ def app_process_log(id):
             state_name = data["state_name"]
             update_time = data["update_time"]
             modulesStr = data["modules"]
-            module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type, modulesStr=modulesStr)
+            lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}"
+            camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}"
+            map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}"
+            module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
+                modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
 
             # 获取父页面id
             parent_page_id = get_page_by_title(project_name + "【应用】", type="App_process")
@@ -194,7 +199,7 @@ def app_process_log(id):
         print('An exception occurred in app_process_log ', str(e), flush=True)
 
 # 生成构建的配置参数
-def generator_build_config(project_name, version, build_type, modulesStr):
+def generator_build_config(project_name, version, build_type, modulesStr, lidar_model, camera_model, map_data):
     try:
         modules = json.loads(modulesStr)
         config = {}
@@ -223,6 +228,9 @@ def generator_build_config(project_name, version, build_type, modulesStr):
             "project": project_name,
             "version": version,
             "build_type": build_type,
+            "lidar_model": lidar_model,
+            "camera_model": camera_model,
+            "map_data": map_data,
             "config": config,
             "base": base,
             "modules": common
