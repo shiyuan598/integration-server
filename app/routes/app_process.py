@@ -39,12 +39,13 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version,
-        App_process.job_name, App_process.build_queue, App_process.build_number, App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url,
-        App_process.creator, User.name.label("creator_name"), App_process.modules, App_process.state, Process_state.name.label("state_name"),
-        App_process.type, App_process.desc, Project.name.label("project_name"),
-        func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+        query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version, 
+            App_process.lidar, App_process.camera, App_process.map, App_process.job_name, App_process.build_queue, App_process.build_number, 
+            App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url, App_process.creator, User.name.label("creator_name"),
+            App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.type, App_process.desc, 
+            Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map,
+            func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         ).join(
             Project,
             App_process.project == Project.id,
@@ -73,8 +74,9 @@ def search():
                 query = query.order_by(desc(text(orderField)))
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "project", "build_type", "version", "api_version", "job_name", "build_queue", "build_number", "jenkins_url",
-        "artifacts_url", "confluence_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", "project_name", "create_time", "update_time"], result)
+        data = generateEntries(["id", "project", "build_type", "version", "api_version", "lidar", "camera", "map", "job_name", "build_queue", "build_number", 
+            "jenkins_url", "artifacts_url", "confluence_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", 
+            "project_name", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -111,11 +113,14 @@ def create():
         desc = request.json.get("desc")
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
+        lidar = request.json.get("lidar")
+        camera = request.json.get("camera")
+        map = request.json.get("map")
         creator = request.json.get("creator")
         type = request.json.get("type")
         artifacts_url = request.json.get("artifacts_url")
         state = int(request.json.get("state"))
-        data = App_process(project=project, version=version, build_type=build_type, job_name=job_name, 
+        data = App_process(project=project, version=version, build_type=build_type, job_name=job_name, lidar=lidar, camera=camera, map=map,
         modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
         session.add(data)
         session.flush()
@@ -145,6 +150,9 @@ def edit():
         # api_version = request.json.get("api_version")
         desc = request.json.get("desc")
         job_name = request.json.get("job_name")
+        lidar = request.json.get("lidar")
+        camera = request.json.get("camera")
+        map = request.json.get("map")
         modules = request.json.get("modules")
         creator = request.json.get("creator")
         type = request.json.get("type")
@@ -156,6 +164,9 @@ def edit():
             "desc": desc,
             "job_name": job_name,
             "modules": modules,
+            "lidar": lidar,
+            "camera": camera,
+            "map": map,
             "state": int(state)
         })
         session.commit()
@@ -171,18 +182,16 @@ def edit():
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})
 
-# 更新应用集成中的模块配置
-@app_process.route('/modules', methods=["GET"])
+# 查询应用集成中的配置信息
+@app_process.route('/info', methods=["GET"])
 def modules():
     try:
         id = request.args.get("id")
-        result = session.query(App_process.modules).filter(App_process.id == id).all()
+        result = session.query(App_process.lidar, App_process.camera, App_process.map, App_process.modules).filter(App_process.id == id).all()
         session.commit()
         session.close()
-        if result[0] is not None:
-            return jsonify({"code": 0, "data": {"modules": result[0][0]}, "msg": "成功"})
-        else:
-            return jsonify({"code": 0, "data": {"modules": ""}, "msg": "成功"})
+        data = generateEntries(["lidar", "camera", "map", "modules"], result)
+        return jsonify({"code": 0, "data": data[0], "msg": "成功"})
     except Exception as e:
         session.rollback()
         return jsonify({"code": 1, "msg": str(e)})

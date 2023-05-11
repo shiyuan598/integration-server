@@ -4,7 +4,7 @@ import datetime, json
 from flask import Blueprint, request, jsonify
 from common.gitlab_tool import getAllBranches, getAllTags, multiGetBranchesTags
 from common.jenkins_tool import build
-from common.artifactory_tool import getAllFiles, getUri
+from common.artifactory_tool import getAllFiles, getAllFolders, getUri
 from common.redis_tool import redis_get, redis_set
 from Model import Api_process, App_process
 from exts import db
@@ -112,8 +112,19 @@ def artifacts_files():
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
         return jsonify({"code": 1, "msg": str(e)})
-
+    
 # 查询artifactory目录下的文件
+@tools.route('/artifacts/folders', methods=["GET"])
+def artifacts_folders():
+    try:
+        path = request.args.get("path", "GSL2/test/x86")
+        data = getAllFolders(path)
+
+        return jsonify({"code": 0, "data": data, "msg": "成功"})
+    except Exception as e:
+        return jsonify({"code": 1, "msg": str(e)})
+
+# 查询artifactory目录的访问URI
 @tools.route('/artifacts/uri', methods=["GET"])
 def artifacts_uri():
     try:

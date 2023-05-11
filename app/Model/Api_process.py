@@ -14,7 +14,7 @@ class Api_process(db.Model):
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     creator = Column(Integer, nullable=False, comment="创建者")
     modules = Column(Text, nullable=False, comment="模块信息")
-    job_name = Column(Text, nullable=False, comment="jenkins构建任务的名称")
+    job_name = Column(String(100), nullable=False, comment="jenkins构建任务的名称")
     build_queue = Column(Integer, comment="jenkins构建任务的queue_id")
     build_number = Column(Integer, comment="jenkins构建任务的序号")
     jenkins_url = Column(String(100), comment="jenkins构建的url")

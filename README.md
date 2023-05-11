@@ -40,6 +40,19 @@ flask db init
 ```
 或 python -m flask db init
 
+3.4在项目根目录中执行以下命令创建迁移脚本
+```bash
+flask db migrate -m "add num field to Project table" 
+```
+
+3.5在项目根目录中执行以下命令将迁移脚本应用到数据库中
+```bash
+flask db upgrade
+```
+
+注意数据库中
+alembic_version的版本号，可以根据需要设置最后的版本以便能执行更新
+
 
 ##### 文档
 1.python-gitlab: https://python-gitlab.readthedocs.io/en/stable/gl_objects/branches.html

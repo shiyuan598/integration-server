@@ -64,12 +64,6 @@ def search():
         if filter != "": # 查询历史待办
             query = query.filter(Todo.state == int(filter))
 
-        # # 设置排序
-        # if orderField != "" and orderSeq != "":
-        #     if orderSeq == "ascend":
-        #         query = query.order_by(asc(orderField))
-        #     else:
-        #         query = query.order_by(desc(orderField))
         # 设置排序
         if orderField != "" and orderSeq != "":
             orderField = "todo." + orderField
