@@ -54,7 +54,8 @@ def update_build_state(data, socketio, type="Api_process"):
                         })
                         session.commit()
                         session.close()
-                    update_ids.append(id) # 记录变化的数据id
+                    # 记录变化的数据id
+                    update_ids.append(id)
                 # 更新url和状态
                 if (info["state"] > 2):
                     if type == "Api_process":
@@ -167,7 +168,6 @@ def app_process_log(id):
             map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}"
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
                 modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
-
             # 获取父页面id
             parent_page_id = get_page_by_title(project_name + "【应用】", type="App_process")
             # 标题
@@ -235,7 +235,7 @@ def generator_build_config(project_name, version, build_type, modulesStr, lidar_
             "base": base,
             "modules": common
         }
-        return json.dumps(result, indent=4)
+        return json.dumps(result, indent=4, ensure_ascii=False)
     except Exception as e:
         print('An exception occurred in generator_build_config ', str(e), flush=True)
 

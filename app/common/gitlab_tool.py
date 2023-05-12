@@ -97,3 +97,25 @@ def multiGetBranchesTags(project_names):
     except Exception as e:
         print('An exception occurred in gitlab multiGetBranchesTags', str(e), flush=True)
         return {"branches": [], "tags": []}
+
+# 查询特定分支的commitId
+def getCommitId(project_name_with_namespace, branch_name):
+    try:
+        commit = ""
+
+        # 获取需要查询的项目
+        project = gl.projects.get(project_name_with_namespace)
+        
+        try:
+            # 获取指定分支
+            branch = project.branches.get(branch_name)
+            commit = branch.commit["id"]
+        except gitlab.exceptions.GitlabGetError as e:
+            # 分支不存在，就尝试从tag中查找
+            if e.response_code == 404:
+                tag = project.tags.get(branch_name)
+                commit = tag.commit["id"]
+        return commit
+    except Exception as e:
+        print('An exception occurred in gitlab getCommitId', str(e), flush=True)
+        return ""

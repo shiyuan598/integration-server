@@ -19,6 +19,29 @@ gl = gitlab.Gitlab(url=url, private_token=token)
 # print("\tTag: ", projects[0].tags.list()[0].name)
 
 # 获取单个项目， 参数：project_name_with_namespace, 
-project = gl.projects.get("ai/perception_camera")
+project = gl.projects.get("wangshiyuan/vehicle-resource-server")
 print("single project:\n", project, "\n")
 print("single project:\n", project.name, "\n")
+for branch in project.branches.list():
+    print(f"Branch {branch.name}: commit {branch.commit['id']}")
+
+print("\n********************************************")
+
+branch = project.branches.get("v1.0")
+print("branch:", branch)
+print("\nbranch v1.0's commit id:", branch.commit["id"])
+
+commit = ""
+branch_name = "v1.90"
+try:
+    branch = project.branches.get(branch_name)
+    print("branch:", branch)
+    commit = branch.commit["id"]
+    print(f"\nbranch {branch_name}'s commit id: {commit}")
+except gitlab.exceptions.GitlabGetError as e:
+    if e.response_code == 404:
+        tag = project.tags.get(branch_name)
+        commit = tag.commit["id"]
+        print("tag:", tag)
+        print(f"\ntag {branch_name}'s commit id: {commit}")
+
