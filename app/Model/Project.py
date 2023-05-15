@@ -9,6 +9,7 @@ class Project(db.Model):
     name = Column(String(50), nullable=False, comment="名称", unique=True)
     platform = Column(String(50), nullable=False, comment="平台")
     job_name = Column(Text, nullable=False, comment="jenkins构建任务的名称")
+    job_name_p = Column(Text, nullable=False, comment="jenkins构建个人任务的名称")
     lidar_path = Column(Text, nullable=False, comment="激光模型的存放路径")
     camera_path = Column(Text, nullable=False, comment="视觉模型的存放路径")
     map_path = Column(Text, nullable=False, comment="地图数据的存放路径")

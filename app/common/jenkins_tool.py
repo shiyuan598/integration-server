@@ -131,7 +131,7 @@ def app_process_log(id):
     try:
         # 查询本次构建的参数信息
         result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
-            App_process.artifacts_url, User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
+            App_process.artifacts_url, User.username.label("username"), User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map
             ).join(
@@ -150,7 +150,7 @@ def app_process_log(id):
                 and_(App_process.type == 0, App_process.id == id)
             ).all()
         if len(result) > 0:
-            data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "creator_name",
+            data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
             "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map"], result)[0]
             
             project_name = data["project_name"]
