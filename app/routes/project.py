@@ -21,9 +21,18 @@ def search():
         orderField = request.args.get("order", "")
         orderSeq = request.args.get("seq", "")
         # 查询总数据量
-        total = session.query(func.count(Project.id)).filter(or_(
+        total = session.query(func.count(Project.id)
+        ).join(
+            User,
+            User.id == Project.owner,
+            isouter=True
+        ).filter(or_(
             Project.name.like("%{}%".format(name)),
-            Project.platform.like("%{}%".format(name))
+            Project.platform.like("%{}%".format(name)),
+            Project.job_name.like("%{}%".format(name)),
+            Project.job_name_p.like("%{}%".format(name)),
+            Project.update_time.like("{}%".format(name)),
+            User.name.like("%{}%".format(name))
         )).scalar()
         session.close()
         if total == 0:
@@ -40,7 +49,11 @@ def search():
             isouter=True
         ).filter(or_(
             Project.name.like("%{}%".format(name)),
-            Project.platform.like("%{}%".format(name))
+            Project.platform.like("%{}%".format(name)),
+            Project.job_name.like("%{}%".format(name)),
+            Project.job_name_p.like("%{}%".format(name)),
+            Project.update_time.like("{}%".format(name)),
+            User.name.like("%{}%".format(name))
         ))
 
         # 设置排序
@@ -90,8 +103,16 @@ def modules(project_id):
         orderField = request.args.get("order", "id")
         orderSeq = request.args.get("seq", "")
         # 查询总数据量
-        total = session.query(func.count(Module.id)).filter(or_(
-            Module.name.like("%{}%".format(name))
+        total = session.query(func.count(Module.id)
+        ).join(
+            User,
+            User.id == Module.owner,
+            isouter=True
+        ).filter(or_(
+            Module.name.like("%{}%".format(name)),
+            Module.git.like("%{}%".format(name)),
+            Module.update_time.like("{}%".format(name)),
+            User.name.like("%{}%".format(name))
         )).filter(Module.project == project_id).scalar()
         session.close()
         if total == 0:
@@ -112,7 +133,10 @@ def modules(project_id):
             User.id == Module.owner,
             isouter=True
         ).filter(or_(
-            Module.name.like("%{}%".format(name))
+            Module.name.like("%{}%".format(name)),
+            Module.git.like("%{}%".format(name)),
+            Module.update_time.like("{}%".format(name)),
+            User.name.like("%{}%".format(name))
         )).filter(Module.project == project_id)
 
         # 设置排序

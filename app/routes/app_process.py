@@ -25,9 +25,27 @@ def search():
         orderSeq = request.args.get("seq", "descend")
         user_id = int(request.args.get("user_id"))
         # 查询总数据量
-        query = session.query(func.count(App_process.id)).filter(or_(
-            App_process.project.like("%{}%".format(name)),
+        query = session.query(func.count(App_process.id)
+        ).join(
+            Project,
+            App_process.project == Project.id,
+            isouter=True
+        ).join(
+            User,
+            User.id == App_process.creator,
+            isouter=True
+        ).join(
+            Process_state,
+            App_process.state == Process_state.state,
+            isouter=True
+        ).filter(or_(
+            Project.name.like("%{}%".format(name)),
             App_process.version.like("%{}%".format(name)),
+            App_process.desc.like("%{}%".format(name)),
+            User.name.like("%{}%".format(name)),
+            App_process.create_time.like("{}%".format(name)),
+            App_process.update_time.like("{}%".format(name)),
+            Process_state.name.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
         )).filter( # 查询系统级的集成流程或自己创建的流程
             or_(App_process.type == 0, App_process.creator == user_id)
@@ -59,8 +77,13 @@ def search():
             User.id == App_process.creator,
             isouter=True
         ).filter(or_(
-            App_process.project.like("%{}%".format(name)),
+            Project.name.like("%{}%".format(name)),
             App_process.version.like("%{}%".format(name)),
+            App_process.desc.like("%{}%".format(name)),
+            User.name.like("%{}%".format(name)),
+            App_process.create_time.like("{}%".format(name)),
+            App_process.update_time.like("{}%".format(name)),
+            Process_state.name.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
         )).filter( # 查询系统级的集成流程或自己创建的流程
             or_(App_process.type == 0, App_process.creator == user_id)
