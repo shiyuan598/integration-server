@@ -1,5 +1,6 @@
 # coding=utf8
-
+import fcntl
+import os
 import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -88,9 +89,36 @@ def run_schedule_task():
     with app.app_context():
         schedule_task(socketio)
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(run_schedule_task, "interval", seconds=60)
-scheduler.start()
+def init_scheduler():
+    print(f"\n\n初始化定时任务\n")
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(run_schedule_task, "interval", seconds=60)
+    scheduler.start()
+
+# 定义文件路径和锁文件路径
+file_path = 'task.lock'
+lock_path = 'task.lock.lock'
+# 检查锁文件是否存在，如果不存在则创建
+if not os.path.exists(lock_path):
+    with open(lock_path, 'w') as f:
+        pass
+
+# 打开文件锁
+with open(lock_path, 'r') as lock_file:
+    # 获取文件锁
+    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+
+    # 检查任务文件是否存在，如果不存在则执行任务
+    if not os.path.exists(file_path):
+        # 执行定时任务
+        init_scheduler()
+        # 创建任务文件
+        with open(file_path, 'w') as task_file:
+            task_file.write(str(os.getpid()))
+
+    # 释放文件锁
+    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
 
 if __name__ == '__main__':
     # app.run(host="127.0.0.1", port=9002, debug=True)

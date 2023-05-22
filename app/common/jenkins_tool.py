@@ -4,7 +4,7 @@ from Model import Api_process, App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_
 from exts import db
 from common.utils import generateEntries
-from .confluence_tool import create_page, get_page_by_title
+from .confluence_tool import create_page, get_or_create_page_by_title, get_page_by_title
 session = db.session
 
 jenkins_server_url = "https://jenkins.zhito.com"
@@ -133,7 +133,7 @@ def app_process_log(id):
         result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
             App_process.artifacts_url, User.username.label("username"), User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map
+            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map, App_process.confluence_url
             ).join(
                 Project,
                 App_process.project == Project.id,
@@ -151,8 +151,7 @@ def app_process_log(id):
             ).all()
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
-            "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map"], result)[0]
-            
+            "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url"], result)[0]
             project_name = data["project_name"]
             version = data["version"]
             build_type = data["build_type"]
@@ -169,9 +168,11 @@ def app_process_log(id):
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
                 modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
             # 获取父页面id
-            parent_page_id = get_page_by_title(project_name + "【应用】", type="App_process")
+            parent_page_id = get_or_create_page_by_title(project_name + "【应用】", type="App_process")
             # 标题
             title = f"{version}【{update_time[0: 10]}】【应用】"
+            m_page = get_page_by_title(title)
+            print(f"\n写之前，查一查{m_page}")
             # 内容
             content = f'<p>项目：{project_name}</p>\
             <p>版本号：{version}</p>\

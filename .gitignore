@@ -7,5 +7,6 @@
 gunicorn.pid
 nohup.out
 *.log
+*.lock
 
 /build
