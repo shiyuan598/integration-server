@@ -77,6 +77,7 @@ def build_job():
         process_type = int(request.json.get("process_type"))
         process_id = int(request.json.get("process_id"))
         job = request.json.get("job")
+        artifacts_url = request.json.get("artifacts_url")
         parameters = request.json.get("parameters")
         data = build(job, parameters)
         # 更新集成流程中的build_number, build_queue
@@ -84,6 +85,7 @@ def build_job():
             session.query(Api_process).filter(Api_process.id == process_id).update({           
                 "build_number": data["build_number"],
                 "build_queue": data["build_queue"],
+                "artifacts_url": artifacts_url,
                 "state": 2 # 进行中
             })
             session.commit()
@@ -93,6 +95,7 @@ def build_job():
                 session.query(App_process).filter(App_process.id == process_id).update({           
                     "build_number": data["build_number"],
                     "build_queue": data["build_queue"],
+                    "artifacts_url": artifacts_url,
                     "state": 2 # 进行中
                 })
                 session.commit()

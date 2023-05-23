@@ -62,8 +62,8 @@ def search():
             App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url, App_process.creator, User.name.label("creator_name"),
             App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.type, App_process.desc, 
             Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map,
-            func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
+            func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
         ).join(
             Project,
             App_process.project == Project.id,
