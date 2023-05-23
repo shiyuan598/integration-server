@@ -243,7 +243,7 @@ def generator_build_config(project_name, version, build_type, modulesStr, lidar_
 # 定时任务，查询build状态
 def schedule_task(socketio):
     try:
-        print("\n", "schedule_task")
+        print("\n", "schedule_task", flush=True)
         # 待更新状态的数据
         appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type, App_process.jenkins_url).filter(App_process.state == 2).all()
         session.close()

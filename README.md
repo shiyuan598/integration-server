@@ -53,6 +53,9 @@ flask db upgrade
 注意数据库中
 alembic_version的版本号，可以根据需要设置最后的版本以便能执行更新
 
+字符错误时执行以下内容：
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
 
 ##### 文档
 1.python-gitlab: https://python-gitlab.readthedocs.io/en/stable/gl_objects/branches.html

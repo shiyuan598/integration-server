@@ -90,7 +90,7 @@ def run_schedule_task():
         schedule_task(socketio)
 
 def init_scheduler():
-    print(f"\n\n初始化定时任务\n")
+    print(f"\n\n初始化定时任务\n", flush=True)
     scheduler = BackgroundScheduler()
     scheduler.add_job(run_schedule_task, "interval", seconds=60)
     scheduler.start()
