@@ -96,8 +96,8 @@ def init_scheduler():
     scheduler.start()
 
 # 定义文件路径和锁文件路径
-file_path = 'task.lock'
-lock_path = 'task.lock.lock'
+file_path = 'schedule_task.file'
+lock_path = 'schedule_task.lock'
 # 检查锁文件是否存在，如果不存在则创建
 if not os.path.exists(lock_path):
     with open(lock_path, 'w') as f:
@@ -110,12 +110,14 @@ with open(lock_path, 'r') as lock_file:
 
     # 检查任务文件是否存在，如果不存在则执行任务
     if not os.path.exists(file_path):
+        print(f"\n 任务文件不存在, 初始化定时任务！", flush=True)
         # 执行定时任务
         init_scheduler()
         # 创建任务文件
         with open(file_path, 'w') as task_file:
             task_file.write(str(os.getpid()))
-
+    else:
+        print(f"\n 任务文件已存在, 不再进行定时任务初始化！", flush=True)
     # 释放文件锁
     fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 

@@ -8,5 +8,7 @@ gunicorn.pid
 nohup.out
 *.log
 *.lock
+schedule_task.file
+schedule_task.lock
 
 /build
