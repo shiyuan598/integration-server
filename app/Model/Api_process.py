@@ -17,9 +17,9 @@ class Api_process(db.Model):
     job_name = Column(String(100), nullable=False, comment="jenkins构建任务的名称")
     build_queue = Column(Integer, comment="jenkins构建任务的queue_id")
     build_number = Column(Integer, comment="jenkins构建任务的序号")
-    jenkins_url = Column(String(100), comment="jenkins构建的url")
-    artifacts_url = Column(String(100), comment="artifactory的url")
-    confluence_url = Column(String(100), comment="confluence的url")
+    jenkins_url = Column(Text, comment="jenkins构建的url")
+    artifacts_url = Column(Text, comment="artifactory的url")
+    confluence_url = Column(Text, comment="confluence的url")
     state = Column(Integer, nullable=False, server_default="0", comment="0：准备中、1：已就绪、2：进行中、3：成功、 4：失败、5：已取消")
     desc = Column(String(100), comment="描述")
     __table_args__ = (UniqueConstraint('version', 'creator', 'project', name='uq_version_creator_project'),) # 同一个用户在同一个项目下创建的版本号不能重复
