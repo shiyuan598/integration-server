@@ -109,8 +109,11 @@ def build_job():
 @tools.route('/artifacts/files', methods=["GET"])
 def artifacts_files():
     try:
-        path = request.args.get("path", "GSL2/test/x86/1.0.0")
-        data = getAllFiles(path)
+        path = request.args.get("path", "")
+        if path == "":
+            data = []
+        else:
+            data = getAllFiles(path)
 
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
@@ -120,8 +123,11 @@ def artifacts_files():
 @tools.route('/artifacts/folders', methods=["GET"])
 def artifacts_folders():
     try:
-        path = request.args.get("path", "GSL2/test/x86")
-        data = getAllFolders(path)
+        path = request.args.get("path", "")
+        if path == "":
+            data = []
+        else:
+            data = getAllFolders(path)
 
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:

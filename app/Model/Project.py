@@ -13,10 +13,11 @@ class Project(db.Model):
     lidar_path = Column(Text, nullable=False, comment="激光模型的存放路径")
     camera_path = Column(Text, nullable=False, comment="视觉模型的存放路径")
     map_path = Column(Text, nullable=False, comment="地图数据的存放路径")
+    driver_path = Column(Text, nullable=True, comment="驱动的存放路径")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     owner = Column(Integer, nullable=False, comment="负责人")
-    desc = Column(String(100), comment="描述")
+    desc = Column(String(200), comment="描述")
 
     def as_dict(obj):
         return dict((col.name, getattr(obj, col.name)) for col in class_mapper(obj.__class__).mapped_table.c) 
