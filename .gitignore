@@ -12,3 +12,4 @@ schedule_task.file
 schedule_task.lock
 
 /build
+venv_dir
