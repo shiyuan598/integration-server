@@ -133,7 +133,7 @@ def create():
         project = request.json.get("project")
         version = request.json.get("version")
         build_type = request.json.get("build_type")
-        # api_version = request.json.get("api_version")
+        auto_test = request.json.get("auto_test")
         desc = request.json.get("desc")
         job_name = request.json.get("job_name")
         modules = request.json.get("modules")
@@ -146,7 +146,7 @@ def create():
         type = request.json.get("type")
         artifacts_url = request.json.get("artifacts_url")
         state = int(request.json.get("state"))
-        data = App_process(project=project, version=version, build_type=build_type, job_name=job_name, lidar=lidar, camera=camera, map=map,
+        data = App_process(project=project, version=version, build_type=build_type, auto_test=auto_test, job_name=job_name, lidar=lidar, camera=camera, map=map,
         driver=driver, sdc=sdc, modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
         session.add(data)
         session.flush()
@@ -173,7 +173,7 @@ def edit():
         project = request.json.get("project")
         version = request.json.get("version")
         build_type = request.json.get("build_type")
-        # api_version = request.json.get("api_version")
+        auto_test = request.json.get("auto_test")
         desc = request.json.get("desc")
         job_name = request.json.get("job_name")
         lidar = request.json.get("lidar")
@@ -189,6 +189,7 @@ def edit():
             "project": project,
             "version": version,
             "build_type": build_type,
+            "auto_test": auto_test,
             "desc": desc,
             "job_name": job_name,
             "modules": modules,

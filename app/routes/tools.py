@@ -79,7 +79,7 @@ def build_job():
         job = request.json.get("job")
         artifacts_url = request.json.get("artifacts_url")
         parameters = request.json.get("parameters")
-        data = build(job, parameters)
+        data = build(job, {"param": parameters})
         # 更新集成流程中的build_number, build_queue
         if process_type == 0:
             session.query(Api_process).filter(Api_process.id == process_id).update({           

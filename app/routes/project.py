@@ -31,6 +31,7 @@ def search():
             Project.platform.like("%{}%".format(name)),
             Project.job_name.like("%{}%".format(name)),
             Project.job_name_p.like("%{}%".format(name)),
+            Project.job_name_test.like("%{}%".format(name)),
             Project.update_time.like("{}%".format(name)),
             User.name.like("%{}%".format(name))
         )).scalar()
@@ -39,7 +40,7 @@ def search():
             return jsonify({"code": 0, "data": [], "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
 
         # 查询分页数据
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.job_name_p, Project.lidar_path, 
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.job_name_p, Project.job_name_test, Project.lidar_path, 
         Project.camera_path, Project.map_path, Project.driver_path, Project.sdc_path, Project.owner, User.name.label("owner_name"), Project.desc,
         func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
@@ -52,6 +53,7 @@ def search():
             Project.platform.like("%{}%".format(name)),
             Project.job_name.like("%{}%".format(name)),
             Project.job_name_p.like("%{}%".format(name)),
+            Project.job_name_test.like("%{}%".format(name)),
             Project.update_time.like("{}%".format(name)),
             User.name.like("%{}%".format(name))
         ))
@@ -65,7 +67,7 @@ def search():
                 query = query.order_by(desc(text(orderField)))
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "lidar_path", "camera_path", "map_path", "driver_path",
+        data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "job_name_test", "lidar_path", "camera_path", "map_path", "driver_path",
                                 "sdc_path", "owner", "owner_name", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
@@ -78,13 +80,13 @@ def search_all():
     try:
         # 查询所有数据
         user_name = request.args.get("user_name")
-        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.job_name_p, 
+        query = session.query(Project.id, Project.name, Project.platform, Project.job_name, Project.job_name_p, Project.job_name_test, 
         Project.lidar_path, Project.camera_path, Project.map_path, Project.driver_path, Project.sdc_path,
         func.concat(artifactory_base_url, "/", Project.name, "/cicd/").label("artifacts_url"), 
         func.concat(artifactory_base_url, "/", Project.name, "/user/", user_name, "/").label("artifacts_url_p"), Project.owner)
         result = query.all()
         session.close()
-        data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "lidar_path", "camera_path", 
+        data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "job_name_test", "lidar_path", "camera_path", 
                 "map_path", "driver_path", "sdc_path", "artifacts_url", "artifacts_url_p", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
@@ -216,6 +218,7 @@ def create():
         platform = request.json.get("platform")
         job_name = request.json.get("job_name")
         job_name_p = request.json.get("job_name_p")
+        job_name_test = request.json.get("job_name_test")
         lidar_path = request.json.get("lidar_path")
         camera_path = request.json.get("camera_path")
         map_path = request.json.get("map_path")
@@ -223,7 +226,7 @@ def create():
         sdc_path = request.json.get("sdc_path")
         owner = request.json.get("owner")
         desc = request.json.get("desc")
-        data = Project(name=name, platform=platform,job_name=job_name, job_name_p=job_name_p, lidar_path=lidar_path,
+        data = Project(name=name, platform=platform,job_name=job_name, job_name_p=job_name_p, job_name_test=job_name_test, lidar_path=lidar_path,
                        camera_path=camera_path, map_path=map_path, driver_path=driver_path, sdc_path=sdc_path, owner=owner, desc=desc)
         session.add(data)
         session.commit()
@@ -242,6 +245,7 @@ def edit():
         platform = request.json.get("platform")
         job_name = request.json.get("job_name")
         job_name_p = request.json.get("job_name_p")
+        job_name_test = request.json.get("job_name_test")
         lidar_path = request.json.get("lidar_path")
         camera_path = request.json.get("camera_path")
         map_path = request.json.get("map_path")
@@ -254,6 +258,7 @@ def edit():
             "platform": platform,
             "job_name": job_name,
             "job_name_p": job_name_p,
+            "job_name_test": job_name_test,
             "lidar_path": lidar_path,
             "camera_path": camera_path,
             "map_path": map_path,

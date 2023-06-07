@@ -13,6 +13,7 @@ class App_process(db.Model):
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     create_time = Column(DateTime, server_default=func.now(), nullable=False)
     creator = Column(Integer, nullable=False, comment="创建者")
+    auto_test = Column(Integer, nullable=True, comment="是否自动化测试")
     type = Column(Integer, nullable=False, server_default="1", comment="类型：0-系统集成，1-开发集成")
     lidar = Column(String(200), nullable=True, comment="激光模型")
     camera = Column(String(200), nullable=True, comment="视觉模型")

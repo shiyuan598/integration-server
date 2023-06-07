@@ -19,7 +19,7 @@ def build(job, parameters):
         nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
 
         # 构建job
-        build_queue = server.build_job(job, {"param": parameters})
+        build_queue = server.build_job(job, parameters)
         return {
             "build_number": nextBuildNumber,
             "build_queue": build_queue
@@ -72,8 +72,12 @@ def update_build_state(data, socketio, type="Api_process"):
                         })
                         session.commit()
                         session.close()
+                        print("\n构建任务结束")
                         # 写confluence日志
                         app_process_log(id)
+                        # 构建成功的开始自动化测试
+                        if info["state"] == 3:
+                            run_auto_test(id)
                     update_ids.append(id) # 记录变化的数据id
         # 实际有更新数据时通知客户端刷新
         if len(update_ids) > 0:
@@ -149,6 +153,7 @@ def app_process_log(id):
             ).filter( # 查询系统级的集成流程
                 and_(App_process.type == 0, App_process.id == id)
             ).all()
+        session.close()
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
             "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url"], result)[0]
@@ -248,5 +253,65 @@ def schedule_task(socketio):
         appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type, App_process.jenkins_url).filter(App_process.state == 2).all()
         session.close()
         update_build_state(appProcessData, socketio, "App_process")
+        # 更新自动化测试的进度
+        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue).filter(App_process.state == 6).all()
+        session.close()
+        update_test_build_state(appProcessData)
     except Exception as e:
         print('An exception occurred in schedule_task ', str(e), flush=True)
+
+# 运行自动化测试
+def run_auto_test(id):
+    try:
+        print("\n开始自动化测试")
+        result = session.query(App_process.id, App_process.auto_test, Project.job_name_test, App_process.artifacts_url
+        ).join(
+                Project,
+                App_process.project == Project.id,
+                isouter=True
+        ).filter(and_(App_process.auto_test == 1, App_process.id == id, Project.job_name_test != None)).all()
+        session.close()
+        print("\n需要测试的数据：", id, result)
+        if len(result) > 0:
+            data = generateEntries(["id", "auto_test", "job_name_test", "artifacts_url"], result)[0]
+            print("\n触发自动化测试的job", data)
+            print(1, data["job_name_test"])
+            
+            build_info = build(data["job_name_test"], {"package_path": data["artifacts_url"].lstrip("https://artifactory.zhito.com/artifactory/")})
+            print(2, build_info["build_number"])
+            session.query(App_process).filter(App_process.id == id).update({           
+                    "build_number": build_info["build_number"],
+                    "build_queue": build_info["build_queue"],
+                    "state": 6 # 测试中
+                })
+            session.commit()
+            session.close()
+    except Exception as e:
+        print('An exception occurred in app_process_log ', str(e), flush=True)
+
+# 更新测试任务状态
+def update_test_build_state(data):
+    print("\n--更新自动化测试的状态")
+    try:
+        for item in data:
+            job_name = item[1]
+            build_number = item[2]
+            build_queue = item[3]
+            # 获取jenkins构建信息
+            info = get_build_info(job_name, build_number, build_queue)
+            if info is not None:
+                if info["state"] > 2:
+                    print("\n更新测试状态")
+                    session.query(App_process).filter(App_process.id == id).update({           
+                        "state": 7 if info["state"] == 3 else 8 # 测试中
+                    })
+
+                # 自动化测试完成
+                if info["state"] == 3:
+                    # 查询系统级的集成流程
+                    # update_confluence
+                    print("\n自动化测试成功，更新confluence页面")
+                
+    except Exception as e:
+        session.rollback()
+        print('An exception occurred at update_build_state ', str(e), flush=True)

@@ -92,7 +92,7 @@ def run_schedule_task():
 def init_scheduler():
     print(f"\n\n初始化定时任务\n", flush=True)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(run_schedule_task, "interval", seconds=60)
+    scheduler.add_job(run_schedule_task, "interval", seconds=20)
     scheduler.start()
 
 # 定义文件路径和锁文件路径
