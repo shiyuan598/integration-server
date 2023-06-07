@@ -18,6 +18,7 @@ class App_process(db.Model):
     camera = Column(String(200), nullable=True, comment="视觉模型")
     map = Column(String(200), nullable=True, comment="地图数据")
     driver = Column(String(200), nullable=True, comment="驱动数据")
+    sdc = Column(String(200), nullable=True, comment="SDC数据")
     modules = Column(Text, nullable=False, comment="模块信息")
     job_name = Column(String(200), nullable=False, comment="jenkins构建任务的名称")
     build_queue = Column(Integer, comment="jenkins构建任务的queue_id")

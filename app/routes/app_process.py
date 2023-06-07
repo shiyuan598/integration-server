@@ -61,7 +61,8 @@ def search():
             App_process.lidar, App_process.camera, App_process.map, App_process.job_name, App_process.build_queue, App_process.build_number, 
             App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url, App_process.creator, User.name.label("creator_name"),
             App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.type, App_process.desc, 
-            Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, Project.driver_path, App_process.lidar, App_process.camera, App_process.map, App_process.driver,
+            Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, Project.driver_path, Project.sdc_path,
+            App_process.lidar, App_process.camera, App_process.map, App_process.driver, App_process.sdc,
             func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
             func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
         ).join(
@@ -99,7 +100,7 @@ def search():
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "api_version", "lidar", "camera", "map", "job_name", "build_queue", "build_number", 
             "jenkins_url", "artifacts_url", "confluence_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", 
-            "project_name", "lidar_path", "camera_path", "map_path", "driver_path", "lidar", "camera", "map", "driver", "create_time", "update_time"], result)
+            "project_name", "lidar_path", "camera_path", "map_path", "driver_path", "sdc_path", "lidar", "camera", "map", "driver", "sdc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -140,12 +141,13 @@ def create():
         camera = request.json.get("camera")
         map = request.json.get("map")
         driver = request.json.get("driver")
+        sdc = request.json.get("sdc")
         creator = request.json.get("creator")
         type = request.json.get("type")
         artifacts_url = request.json.get("artifacts_url")
         state = int(request.json.get("state"))
         data = App_process(project=project, version=version, build_type=build_type, job_name=job_name, lidar=lidar, camera=camera, map=map,
-        driver=driver, modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
+        driver=driver, sdc=sdc, modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
         session.add(data)
         session.flush()
         id = data.id
@@ -177,7 +179,8 @@ def edit():
         lidar = request.json.get("lidar")
         camera = request.json.get("camera")
         map = request.json.get("map")
-        driver = request.json.get("driver")        
+        driver = request.json.get("driver")
+        sdc = request.json.get("sdc")
         modules = request.json.get("modules")
         creator = request.json.get("creator")
         type = request.json.get("type")
@@ -193,6 +196,7 @@ def edit():
             "camera": camera,
             "map": map,
             "driver": driver,
+            "sdc": sdc,
             "state": int(state)
         })
         session.commit()
