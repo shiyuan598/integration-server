@@ -3,7 +3,7 @@ import jenkins
 from Model import Api_process, App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_
 from exts import db
-from common.utils import generateEntries
+from common.utils import generateEntries, get_url_param_value
 from .confluence_tool import create_page, get_or_create_page_by_title, append_page_by_title
 session = db.session
 
@@ -254,7 +254,7 @@ def schedule_task(socketio):
         session.close()
         update_build_state(appProcessData, socketio, "App_process")
         # 更新自动化测试的进度
-        appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number, App_process.build_queue, App_process.version, App_process.type,
+        appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number, App_process.build_queue, App_process.version, App_process.confluence_url,
                 func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
             ).join(
                 Project,
@@ -300,7 +300,7 @@ def update_test_build_state(data):
             build_number = item[2]
             build_queue = item[3]
             version = item[4]
-            type = item[5]
+            confluence_url = item[5]
             create_time = item[6]
             # 获取jenkins构建信息
             info = get_build_info(job_name, build_number, build_queue)
@@ -320,12 +320,13 @@ def update_test_build_state(data):
                     session.commit()
                     session.close()
 
-                    # 系统级的集成流程自动化测试完成后更新confluence
-                    if info["state"] == 3 and type == 0:
-                        # 查询系统级的集成流程
-                        title = f"{version}【{create_time[0: 10]}】【应用】"                        
-                        content = f'<p>Auto Test:&nbsp;<a class="external-link" style="text-decoration: none;" href="{test_result_url}" rel="nofollow">{test_result_url}</a></p>'
-                        append_page_by_title(title, content)                    
+                    # 测试完成后更新confluence
+                    if info["state"] == 3:
+                        page_id =  get_url_param_value(confluence_url, "pageId")
+                        if page_id != "":
+                            title = f"{version}【{create_time[0: 10]}】【应用】"                        
+                            content = f'<p>Auto Test:&nbsp;<a class="external-link" style="text-decoration: none;" href="{test_result_url}" rel="nofollow">{test_result_url}</a></p>'
+                            append_page_by_title(title, content)                    
 
     except Exception as e:
         session.rollback()

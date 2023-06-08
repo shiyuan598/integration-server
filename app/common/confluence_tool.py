@@ -55,20 +55,19 @@ def get_or_create_page_by_title(title, type="App_process"):
         print('An exception occurred in get_or_create_page_by_title', str(e), flush=True)
 
 
-# 获取页面
-def get_page_by_title(title):
-    try:
-        return confluence.get_page_by_title(space=space, title=title, expand='body.storage')
-    except Exception as e:
-        print('An exception occurred in get_page_by_title', str(e), flush=True)
+# # 获取页面
+# def get_page_by_title(title):
+#     try:
+#         return confluence.get_page_by_title(space=space, title=title, expand='body.storage')
+#     except Exception as e:
+#         print('An exception occurred in get_page_by_title', str(e), flush=True)
 
 # 将测试结果链接追加到confluence页面中
-def append_page_by_title(title, content):
+def append_page_by_title(id, content):
     try:
-        page = get_page_by_title(title)
         result = None
-        if page is not None:
-            result = confluence.append_page(page_id=page["id"], content=content)
+        if id is not None:
+            result = confluence.append_page(page_id=id, content=content)
 
         return result
     except Exception as e:
