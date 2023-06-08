@@ -4,7 +4,7 @@ from Model import Api_process, App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_
 from exts import db
 from common.utils import generateEntries, get_url_param_value
-from .confluence_tool import create_page, get_or_create_page_by_title, append_page_by_title
+from .confluence_tool import create_page, get_or_create_page_by_title, append_page_by_id
 session = db.session
 
 jenkins_server_url = "https://jenkins.zhito.com"
@@ -169,9 +169,9 @@ def app_process_log(id):
             state_name = data["state_name"]
             create_time = data["create_time"]
             modulesStr = data["modules"]
-            lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}"
-            camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}"
-            map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}"
+            lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}" if data['lidar'] is not None else ""
+            camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}" if data['camera'] is not None else ""
+            map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}" if data['map'] is not None else ""
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
                 modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
             # 获取父页面id
@@ -326,7 +326,7 @@ def update_test_build_state(data):
                         if page_id != "":
                             title = f"{version}【{create_time[0: 10]}】【应用】"                        
                             content = f'<p>Auto Test:&nbsp;<a class="external-link" style="text-decoration: none;" href="{test_result_url}" rel="nofollow">{test_result_url}</a></p>'
-                            append_page_by_title(title, content)                    
+                            append_page_by_id(title, content)                    
 
     except Exception as e:
         session.rollback()
