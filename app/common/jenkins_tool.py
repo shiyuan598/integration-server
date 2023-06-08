@@ -4,7 +4,7 @@ from Model import Api_process, App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_
 from exts import db
 from common.utils import generateEntries
-from .confluence_tool import create_page, get_or_create_page_by_title, get_page_by_title
+from .confluence_tool import create_page, get_or_create_page_by_title, append_page_by_title
 session = db.session
 
 jenkins_server_url = "https://jenkins.zhito.com"
@@ -72,7 +72,6 @@ def update_build_state(data, socketio, type="Api_process"):
                         })
                         session.commit()
                         session.close()
-                        print("\n构建任务结束")
                         # 写confluence日志
                         app_process_log(id)
                         # 构建成功的开始自动化测试
@@ -105,7 +104,8 @@ def get_build_info(job, build_number, build_queue):
             # 目前还查询不到
             return {
                 "state": 2,
-                "jenkins_url": None
+                "jenkins_url": None,
+                "number": build_number
             }
         else:
             # 查询build_info, 比对queue
@@ -116,13 +116,15 @@ def get_build_info(job, build_number, build_queue):
                 if build_info["result"] is None:
                     return {
                         "state": 2,
-                        "jenkins_url": build_info["url"]
+                        "jenkins_url": build_info["url"],
+                        "number": build_info["number"]
                     }
                 else:
                     # 构建结束，更新结果、状态
                     return {
                         "state": 3 if build_info["result"].lower() == "success" else 4,
-                        "jenkins_url": build_info["url"]
+                        "jenkins_url": build_info["url"],
+                        "number": build_info["number"]
                     }
             # 否则认为是下一次构建
             else:
@@ -136,7 +138,7 @@ def app_process_log(id):
         # 查询本次构建的参数信息
         result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
             App_process.artifacts_url, User.username.label("username"), User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
-            App_process.desc, func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            App_process.desc, func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
             Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map, App_process.confluence_url
             ).join(
                 Project,
@@ -156,7 +158,7 @@ def app_process_log(id):
         session.close()
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
-            "modules", "state_name", "desc", "update_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url"], result)[0]
+            "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url"], result)[0]
             project_name = data["project_name"]
             version = data["version"]
             build_type = data["build_type"]
@@ -165,7 +167,7 @@ def app_process_log(id):
             artifacts_url = data["artifacts_url"]
             creator_name = data["creator_name"]
             state_name = data["state_name"]
-            update_time = data["update_time"]
+            create_time = data["create_time"]
             modulesStr = data["modules"]
             lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}"
             camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}"
@@ -175,16 +177,14 @@ def app_process_log(id):
             # 获取父页面id
             parent_page_id = get_or_create_page_by_title(project_name + "【应用】", type="App_process")
             # 标题
-            title = f"{version}【{update_time[0: 10]}】【应用】"
-            m_page = get_page_by_title(title)
-            print(f"\n写之前，查一查{m_page}")
+            title = f"{version}【{create_time[0: 10]}】【应用】"
             # 内容
             content = f'<p>项目：{project_name}</p>\
             <p>版本号：{version}</p>\
             <p>集成类型：应用集成</p>\
             <p>描述：{desc}</p>\
             <p>创建人：{creator_name}</p>\
-            <p>时间：{update_time}</p>\
+            <p>时间：{create_time}</p>\
             <p>结果：{state_name}</p>\
             <p>Jenkins:&nbsp;<a class="external-link" style="text-decoration: none;" href="{jenkins_url}" rel="nofollow">{jenkins_url}</a></p>\
             <p>Artifacts:&nbsp;<a class="external-link" style="text-decoration: none;" href="{artifacts_url}" rel="nofollow">{artifacts_url}</a></p>\
@@ -254,7 +254,13 @@ def schedule_task(socketio):
         session.close()
         update_build_state(appProcessData, socketio, "App_process")
         # 更新自动化测试的进度
-        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue).filter(App_process.state == 6).all()
+        appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number, App_process.build_queue, App_process.version, App_process.type,
+                func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
+            ).join(
+                Project,
+                App_process.project == Project.id,
+                isouter=True
+            ).filter(App_process.state == 6).all()
         session.close()
         update_test_build_state(appProcessData)
     except Exception as e:
@@ -271,14 +277,10 @@ def run_auto_test(id):
                 isouter=True
         ).filter(and_(App_process.auto_test == 1, App_process.id == id, Project.job_name_test != None)).all()
         session.close()
-        print("\n需要测试的数据：", id, result)
         if len(result) > 0:
             data = generateEntries(["id", "auto_test", "job_name_test", "artifacts_url"], result)[0]
-            print("\n触发自动化测试的job", data)
-            print(1, data["job_name_test"])
             
             build_info = build(data["job_name_test"], {"package_path": data["artifacts_url"].lstrip("https://artifactory.zhito.com/artifactory/")})
-            print(2, build_info["build_number"])
             session.query(App_process).filter(App_process.id == id).update({           
                     "build_number": build_info["build_number"],
                     "build_queue": build_info["build_queue"],
@@ -291,27 +293,40 @@ def run_auto_test(id):
 
 # 更新测试任务状态
 def update_test_build_state(data):
-    print("\n--更新自动化测试的状态")
     try:
         for item in data:
+            id = item[0]
             job_name = item[1]
             build_number = item[2]
             build_queue = item[3]
+            version = item[4]
+            type = item[5]
+            create_time = item[6]
             # 获取jenkins构建信息
             info = get_build_info(job_name, build_number, build_queue)
             if info is not None:
                 if info["state"] > 2:
-                    print("\n更新测试状态")
-                    session.query(App_process).filter(App_process.id == id).update({           
+                    # 测试结果url
+                    # 将'Integration/HWL4_X86_Integration_Test' ==> 'Integration/job/HWL4_X86_Integration_Test'
+                    parts = job_name.split('/')
+                    parts.insert(1, 'job')
+                    new_job_name = '/'.join(parts)
+                    test_result_url = f'https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult/'
+                    # 更新测试状态后结果url
+                    session.query(App_process).filter(App_process.id == id).update({
+                        "test_result_url": test_result_url if info["state"] == 3 else "",
                         "state": 7 if info["state"] == 3 else 8 # 测试中
                     })
+                    session.commit()
+                    session.close()
 
-                # 自动化测试完成
-                if info["state"] == 3:
-                    # 查询系统级的集成流程
-                    # update_confluence
-                    print("\n自动化测试成功，更新confluence页面")
-                
+                    # 系统级的集成流程自动化测试完成后更新confluence
+                    if info["state"] == 3 and type == 0:
+                        # 查询系统级的集成流程
+                        title = f"{version}【{create_time[0: 10]}】【应用】"                        
+                        content = f'<p>Auto Test:&nbsp;<a class="external-link" style="text-decoration: none;" href="{test_result_url}" rel="nofollow">{test_result_url}</a></p>'
+                        append_page_by_title(title, content)                    
+
     except Exception as e:
         session.rollback()
         print('An exception occurred at update_build_state ', str(e), flush=True)

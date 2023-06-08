@@ -27,6 +27,7 @@ class App_process(db.Model):
     jenkins_url = Column(Text, comment="jenkins构建的url")
     artifacts_url = Column(Text, comment="artifactory的url")
     confluence_url = Column(Text, comment="confluence的url")
+    test_result_url = Column(Text, comment="test_result的url")
     state = Column(Integer, nullable=False, server_default="0", comment="0：准备中、1：已就绪、2：进行中、3：成功、 4：失败、5：已取消")
     desc = Column(String(200), comment="描述")
     __table_args__ = (UniqueConstraint('version', 'creator', 'project', name='uq_version_creator_project'),) # 同一个用户在同一个项目下创建的版本号不能重复

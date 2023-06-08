@@ -62,31 +62,14 @@ def get_page_by_title(title):
     except Exception as e:
         print('An exception occurred in get_page_by_title', str(e), flush=True)
 
-# confluence集成平台构建日志
-# 触发条件：系统级别的构建会生成日志
-# 触发时间：查询到结果时触发写入confluence
+# 将测试结果链接追加到confluence页面中
+def append_page_by_title(title, content):
+    try:
+        page = get_page_by_title(title)
+        result = None
+        if page is not None:
+            result = confluence.append_page(page_id=page["id"], content=content)
 
-# 目录结构（命名规范）：
-# 一级目录：应用集成 / 接口集成
-# 二级目录：项目名称【应用/集成】，注：增加标签避免confluence同一空间下title重复的问题
-# 三级目录：版本号【日期】【应用/集成】，如：V0.1.1【2023-04-19】【应用】
-# 内容模板：
-# 项目：GSL4_X86
-
-# 版本号：v0.1.1
-
-# 集成类型：接口集成
-
-# 描述：xxxx
-
-# 创建人：admin
-
-# 时间：2023-04-19 14:29
-
-# 结果：成功 / 失败
-
-# Jenkins: https://jenkins.zhito.com/job/integration_test4/72/
-
-# Artifacts: https://artifactory.zhito.com/ui/native/GSL4/cicd/X86/
-
-# 模块配置信息：{project: "GSL4_X86", version: "V1.2.1", modules: { ... }}
+        return result
+    except Exception as e:
+        print('An exception occurred in append_page_by_title', str(e), flush=True)

@@ -59,8 +59,8 @@ def search():
         # 查询分页数据
         query = session.query(App_process.id, App_process.project, App_process.build_type, App_process.version, App_process.api_version, 
             App_process.lidar, App_process.camera, App_process.map, App_process.job_name, App_process.build_queue, App_process.build_number, 
-            App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url, App_process.creator, User.name.label("creator_name"),
-            App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.type, App_process.desc, 
+            App_process.jenkins_url, App_process.artifacts_url, App_process.confluence_url, App_process.test_result_url, App_process.creator,
+            User.name.label("creator_name"), App_process.modules, App_process.state, Process_state.name.label("state_name"), App_process.type, App_process.desc, 
             Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, Project.driver_path, Project.sdc_path,
             App_process.lidar, App_process.camera, App_process.map, App_process.driver, App_process.sdc,
             func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
@@ -99,7 +99,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "project", "build_type", "version", "api_version", "lidar", "camera", "map", "job_name", "build_queue", "build_number", 
-            "jenkins_url", "artifacts_url", "confluence_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", 
+            "jenkins_url", "artifacts_url", "confluence_url", "test_result_url", "creator", "creator_name", "modules", "state", "state_name", "type", "desc", 
             "project_name", "lidar_path", "camera_path", "map_path", "driver_path", "sdc_path", "lidar", "camera", "map", "driver", "sdc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
