@@ -2,8 +2,9 @@
 # 应用集成
 from flask import Blueprint, request, jsonify
 from Model import App_process, Project, Process_state, User
-from sqlalchemy import func, text, and_, or_, asc, desc
+from sqlalchemy import func, text, and_, or_, not_, asc, desc
 from common.utils import generateEntries
+from datetime import datetime, timedelta
 
 from common.jenkins_tool import app_process_log
 
@@ -24,6 +25,10 @@ def search():
         orderField = request.args.get("order", "id")
         orderSeq = request.args.get("seq", "descend")
         user_id = int(request.args.get("user_id"))
+
+        # 获取当前时间和24小时前的时间
+        current_time = datetime.now()
+        past_time = current_time - timedelta(hours=24)
         # 查询总数据量
         query = session.query(func.count(App_process.id)
         ).join(
@@ -49,7 +54,14 @@ def search():
             App_process.api_version.like("%{}%".format(name))
         )).filter( # 查询系统级的集成流程或自己创建的流程
             or_(App_process.type == 0, App_process.creator == user_id)
-        )            
+        ).filter(
+            not_(
+                and_(
+                    App_process.state == 4,
+                    App_process.create_time < past_time
+                )
+            )
+        )
         
         total = query.scalar()
         session.close()
@@ -88,6 +100,13 @@ def search():
             App_process.api_version.like("%{}%".format(name))
         )).filter( # 查询系统级的集成流程或自己创建的流程
             or_(App_process.type == 0, App_process.creator == user_id)
+        ).filter(
+            not_(
+                and_(
+                    App_process.state == 4,
+                    App_process.create_time < past_time
+                )
+            )
         )
         # 设置排序
         if orderField != "" and orderSeq != "":

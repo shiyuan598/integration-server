@@ -63,11 +63,11 @@ def get_or_create_page_by_title(title, type="App_process"):
 #         print('An exception occurred in get_page_by_title', str(e), flush=True)
 
 # 将测试结果链接追加到confluence页面中
-def append_page_by_id(id, content):
+def append_page_by_id(id, title, content):
     try:
         result = None
         if id is not None:
-            result = confluence.append_page(page_id=id, append_body=content)
+            result = confluence.append_page(page_id=id, title=title, append_body=content)
 
         return result
     except Exception as e:

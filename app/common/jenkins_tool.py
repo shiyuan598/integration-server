@@ -326,7 +326,7 @@ def update_test_build_state(data):
                         if page_id != "":
                             title = f"{version}【{create_time[0: 10]}】【应用】"                        
                             content = f'<p>Auto Test:&nbsp;<a class="external-link" style="text-decoration: none;" href="{test_result_url}" rel="nofollow">{test_result_url}</a></p>'
-                            append_page_by_id(title, content)                    
+                            append_page_by_id(page_id, title, content)                   
 
     except Exception as e:
         session.rollback()
