@@ -18,6 +18,7 @@ class App_process(db.Model):
     lidar = Column(String(200), nullable=True, comment="激光模型")
     camera = Column(String(200), nullable=True, comment="视觉模型")
     map = Column(String(200), nullable=True, comment="地图数据")
+    plan_map = Column(String(200), nullable=True, comment="规划地图数据")
     driver = Column(String(200), nullable=True, comment="驱动数据")
     sdc = Column(String(200), nullable=True, comment="SDC数据")
     modules = Column(Text, nullable=False, comment="模块信息")
