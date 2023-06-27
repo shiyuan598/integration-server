@@ -15,6 +15,7 @@ class Project(db.Model):
     camera_path = Column(Text, nullable=False, comment="视觉模型的存放路径")
     map_path = Column(Text, nullable=False, comment="地图数据的存放路径")
     plan_map_path = Column(Text, nullable=False, comment="规划地图数据的存放路径")
+    mcu_path = Column(Text, nullable=False, comment="mcu的存放路径")
     driver_path = Column(Text, nullable=True, comment="驱动的存放路径")
     sdc_path = Column(Text, nullable=True, comment="SDC的存放路径")
     update_time = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
