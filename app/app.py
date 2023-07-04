@@ -13,6 +13,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from common.jenkins_tool import schedule_task
 from flask_migrate import Migrate
 from flask_socketio import SocketIO, emit
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 app = Flask(__name__)
 app.config.from_object('config.setting')
