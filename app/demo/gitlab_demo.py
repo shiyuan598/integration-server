@@ -25,23 +25,23 @@ print("single project:\n", project.name, "\n")
 for branch in project.branches.list():
     print(f"Branch {branch.name}: commit {branch.commit['id']}")
 
-print("\n********************************************")
+# print("\n********************************************")
 
-branch = project.branches.get("v1.0")
-print("branch:", branch)
-print("\nbranch v1.0's commit id:", branch.commit["id"])
+# branch = project.branches.get("v1.0")
+# print("branch:", branch)
+# print("\nbranch v1.0's commit id:", branch.commit["id"])
 
-commit = ""
-branch_name = "v1.90"
-try:
-    branch = project.branches.get(branch_name)
-    print("branch:", branch)
-    commit = branch.commit["id"]
-    print(f"\nbranch {branch_name}'s commit id: {commit}")
-except gitlab.exceptions.GitlabGetError as e:
-    if e.response_code == 404:
-        tag = project.tags.get(branch_name)
-        commit = tag.commit["id"]
-        print("tag:", tag)
-        print(f"\ntag {branch_name}'s commit id: {commit}")
+# commit = ""
+# branch_name = "v1.90"
+# try:
+#     branch = project.branches.get(branch_name)
+#     print("branch:", branch)
+#     commit = branch.commit["id"]
+#     print(f"\nbranch {branch_name}'s commit id: {commit}")
+# except gitlab.exceptions.GitlabGetError as e:
+#     if e.response_code == 404:
+#         tag = project.tags.get(branch_name)
+#         commit = tag.commit["id"]
+#         print("tag:", tag)
+#         print(f"\ntag {branch_name}'s commit id: {commit}")
 

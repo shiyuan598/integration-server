@@ -1,7 +1,7 @@
 # coding=utf8
 # MySQL配置
-MYSQL_HOST = '127.0.0.1'
-MYSQL_PORT = '3331'
+MYSQL_HOST = 'localhost'
+MYSQL_PORT = '3307'
 MYSQL_USER = 'root'
 MYSQL_PASSWD = '123456'
 MYSQL_DB = 'integration'
