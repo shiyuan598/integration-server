@@ -4,7 +4,7 @@
 1.虚拟环境
 创建
 ```bash
-python3.10 -m venv venv_dir
+python3 -m venv venv_dir
 
 ```
 激活
