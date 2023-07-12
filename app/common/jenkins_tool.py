@@ -37,6 +37,8 @@ def update_build_state(data, socketio, type="Api_process"):
             build_number = item[2]
             build_queue = item[3]
             jenkins_url = item[5]
+            auto_test = item[6]
+            platform = item[7]
             # 获取jenkins构建信息
             info = get_build_info(job_name, build_number, build_queue)
             if info is not None:
@@ -66,9 +68,17 @@ def update_build_state(data, socketio, type="Api_process"):
                         session.commit()
                         session.close()
                     if type == "App_process":
+                        test_result_url = "";
+                        if auto_test == 1 and platform == "ORIN":
+                            parts = job_name.split('/')
+                            parts.insert(1, 'job')
+                            new_job_name = '/'.join(parts)
+                            test_result_url = f'https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5fonline/;\
+                                https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5foffline/'
                         session.query(App_process).filter(App_process.id == id).update({
                             "state": info["state"],
-                            "jenkins_url": info["jenkins_url"]
+                            "jenkins_url": info["jenkins_url"],
+                            "test_result_url": test_result_url
                         })
                         session.commit()
                         session.close()
@@ -139,7 +149,7 @@ def app_process_log(id):
         result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
             App_process.artifacts_url, User.username.label("username"), User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map, App_process.confluence_url
+            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map, App_process.confluence_url, App_process.test_result_url
             ).join(
                 Project,
                 App_process.project == Project.id,
@@ -158,7 +168,7 @@ def app_process_log(id):
         session.close()
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
-            "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url"], result)[0]
+            "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url", "test_result_url"], result)[0]
             project_name = data["project_name"]
             version = data["version"]
             build_type = data["build_type"]
@@ -172,6 +182,7 @@ def app_process_log(id):
             lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}" if data['lidar'] is not None else ""
             camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}" if data['camera'] is not None else ""
             map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}" if data['map'] is not None else ""
+            test_result_url = data["test_result_url"]
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
                 modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
             # 获取父页面id
@@ -193,6 +204,13 @@ def app_process_log(id):
             <ac:plain-text-body><![CDATA[{module_config}]]></ac:plain-text-body>\
             </ac:structured-macro><p class="auto-cursor-target"><br /></p>'
             
+            if test_result_url != None:
+                urls = test_result_url.split(";")
+                url_str = "<p>自动化测试：</p>"
+                for item in urls:
+                    url_str = url_str + f'<a class="external-link" style="text-decoration: none;" href="{item}" rel="nofollow">{item}</a><br/>'
+                
+                content = content + url_str
             # 生成confluence页面
             result = create_page(title=title, content=content, parent_page_id=parent_page_id)
             # 把页面地址写人库中
@@ -250,7 +268,13 @@ def schedule_task(socketio):
     try:
         print("\n", "schedule_task", flush=True)
         # 待更新状态的数据
-        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue, App_process.type, App_process.jenkins_url).filter(App_process.state == 2).all()
+        appProcessData = session.query(App_process.id, App_process.job_name, App_process.build_number, App_process.build_queue,
+                App_process.type, App_process.jenkins_url, App_process.auto_test, Project.platform
+            ).join(
+                Project,
+                App_process.project == Project.id,
+                isouter=True
+            ).filter(App_process.state == 2).all()
         session.close()
         update_build_state(appProcessData, socketio, "App_process")
         # 更新自动化测试的进度
