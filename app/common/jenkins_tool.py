@@ -73,8 +73,7 @@ def update_build_state(data, socketio, type="Api_process"):
                             parts = job_name.split('/')
                             parts.insert(1, 'job')
                             new_job_name = '/'.join(parts)
-                            test_result_url = f'https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5fonline/;\
-                                https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5foffline/'
+                            test_result_url = f'https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5fonline/;https://jenkins.zhito.com/job/{new_job_name}/{info["number"]}/test_5fresult_5foffline/'
                         session.query(App_process).filter(App_process.id == id).update({
                             "state": info["state"],
                             "jenkins_url": info["jenkins_url"],
