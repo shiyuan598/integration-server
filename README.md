@@ -4,7 +4,7 @@
 1.虚拟环境
 创建
 ```bash
-python3 -m venv venv_dir
+python3.10 -m venv venv_dir
 
 ```
 激活
@@ -24,10 +24,16 @@ pip3 install -i https://mirrors.tencent.com/pypi/simple/ --upgrade tencentcloud-
 腾讯云账户管理[地址(https://console.cloud.tencent.com/smsv2)]
 腾讯云密钥管理[地址(https://console.cloud.tencent.com/cam/capi)]
 
+
+导出requirements: 
+```
+python3.10 -m pip freeze > requirements.txt
+
+
 3.启动
 开发环境
 ```bash
-python3 app.py
+python3.10 app.py
 ```
 生产环境使用gunicorn
 ```bash
@@ -49,16 +55,16 @@ migrate = Migrate(app, db)
 ```bash
 flask db init 
 ```
-或 python -m flask db init
+或 python3.10 -m flask db init
 
 3.4在项目根目录中执行以下命令创建迁移脚本
 ```bash
-python -m flask db migrate -m "add num field to Project table" 
+python3.10 -m flask db migrate -m "add num field to Project table" 
 ```
 
 3.5在项目根目录中执行以下命令将迁移脚本应用到数据库中
 ```bash
-python -m flask db upgrade
+python3.10 -m flask db upgrade
 ```
 
 注意数据库中

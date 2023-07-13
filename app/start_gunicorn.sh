@@ -4,4 +4,4 @@ rm -f schedule_task* ;
 if [ $? -eq 0 ]; then
   echo "文件已删除";
 fi
-nohup gunicorn -c gunicorn.conf app:app &
+nohup python3.10 -m gunicorn -c gunicorn.conf app:app &
