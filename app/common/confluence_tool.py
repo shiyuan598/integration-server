@@ -30,7 +30,7 @@ def query_or_create_page_by_title(title, parent_page_id, space="ITD"):
         page = confluence.get_page_by_title(space=space,
                                             title=title,
                                             expand='body.storage')
-        if page is None:
+        if page == None:
             return create_page(title=title,
                                space=space,
                                parent_page_id=parent_page_id)["id"]
@@ -66,7 +66,7 @@ def get_or_create_page_by_title(title, type="App_process"):
 def append_page_by_id(id, title, content):
     try:
         result = None
-        if id is not None:
+        if id != None:
             result = confluence.append_page(page_id=id, title=title, append_body=content)
 
         return result

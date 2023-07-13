@@ -60,7 +60,7 @@ parent_page = {"id": 56111727}
 page = confluence.get_page_by_title(space=space,
                                     title="GSL4_X86【应用】")
 # print("\n\npage:\n", page["_links"]["webui"])
-if page is None:
+if page == None:
     print("Not Found!")
 print("\n", page)
 

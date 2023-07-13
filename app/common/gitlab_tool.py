@@ -1,5 +1,4 @@
 import gitlab
-import time
 
 # 参考：https://python-gitlab.readthedocs.io/en/stable/gl_objects/projects.html
 # https://gitlab.zhito.com/api/v4/projects REST Url 
@@ -40,7 +39,6 @@ def getAllTags(project_name_with_namespace):
 # 一次查询多个项目的所有分支和tag
 def multiGetBranchesTags2(project_names):
     try:
-        start = time.clock()
         # 先列出所有项目
         projects = gl.projects.list(all=True, simple=True, search_namespaces=True)
         result = {}
@@ -60,9 +58,6 @@ def multiGetBranchesTags2(project_names):
                     "branch": branches,
                     "tag": tags
                 }
-        end = time.clock()
-        runTime = end - start
-        print("\n multiGetBranchesTags2 run time:", runTime)
         return result
     except Exception as e:
         print('An exception occurred in gitlab multiGetBranchesTags2', str(e), flush=True)
@@ -72,7 +67,6 @@ def multiGetBranchesTags2(project_names):
 # 一次查询多个项目的所有分支和tag
 def multiGetBranchesTags(project_names):
     try:
-        start = time.clock()
         result = {}
         # 逐个项目查询
         for project_name_with_namespace in project_names:
@@ -90,9 +84,6 @@ def multiGetBranchesTags(project_names):
                 "branch": branches,
                 "tag": tags
             }
-        end = time.clock()
-        runTime = end - start
-        print("\n multiGetBranchesTags method run time:", runTime)
         return result
     except Exception as e:
         print('An exception occurred in gitlab multiGetBranchesTags', str(e), flush=True)

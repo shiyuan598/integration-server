@@ -143,7 +143,7 @@ def update_app_process_module(id, module_name, version, release_note):
         state = 1
         # 所有模块信息填写完整后状态为已就绪
         for key in keys:
-            if modules[key]["version"] is "":
+            if modules[key]["version"] == "":
                 state = 0
         session.query(App_process).filter(App_process.id == id).update({
             "modules": json.dumps(modules, indent=4),
@@ -187,4 +187,4 @@ def prompt_todo():
 def check_phone_number(phone):
     pattern = '^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$'
     res = re.match(pattern, phone)
-    return (res is not None)
+    return (res != None)

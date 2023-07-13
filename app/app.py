@@ -5,14 +5,13 @@ import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from exts import db
-from flask_sqlalchemy import get_debug_queries
+from flask_sqlalchemy import record_queries
 import time
 from routes.blueprint import registerRoute
 from routes.user import check_token
 from apscheduler.schedulers.background import BackgroundScheduler
 from common.jenkins_tool import schedule_task
 from flask_migrate import Migrate
-from flask_socketio import SocketIO, emit
 import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -27,25 +26,16 @@ db.init_app(app)
 # 数据迁移
 migrate = Migrate(app, db)
 
-# websocket
-socketio = SocketIO(app, cors_allowed_origins="*")
-
 # 注册路由
 registerRoute(app)
 
 # 创建所有的表，需要放在路由后面
-db.create_all(app=app)
-
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def hello():
-    socketio.emit('my_response', {"message": "call hello"}, broadcast=True)
     return 'Hello World!'
-
-@socketio.on('my_event')
-def handle_my_custom_event(data):
-    print('\nreceived message: ' + str(data))
-    emit('my_response', data, broadcast=True)
 
 # 不需要校验的接口
 NOT_CHECK_URL = [
@@ -72,13 +62,13 @@ def auth_check():
 
 @app.after_request
 def after_request(response):
-    for query in get_debug_queries():
+    for query in record_queries.get_recorded_queries():
         if query.duration > app.config["FLASKY_DB_QUERY_TIMEOUT"]:
             startTime = time.strftime("%Y-%m-%d %H:%M:%S",
                                       time.localtime(int(query.start_time)))
             print("\t", ('\n时间: {}\n时长: {}\nSQL: {}\n参数: {}').format(
                 startTime, query.duration, query.statement, str(query.parameters)[0:150]), flush=True)
-    if (response.status_code is not 200):
+    if (response.status_code != 200):
         print(("\n响应出错：\ntime:{}\nstatus:{}\ndata:{}").format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), response.status_code, response.data.decode("utf-8")), flush=True)
     return response
 
@@ -90,7 +80,7 @@ def teardown_request(e):
 # 定时任务, 更新流程的状态
 def run_schedule_task():
     with app.app_context():
-        schedule_task(socketio)
+        schedule_task()
 
 def init_scheduler():
     print(f"\n\n初始化定时任务\n", flush=True)
@@ -126,5 +116,4 @@ with open(lock_path, 'r') as lock_file:
 
 
 if __name__ == '__main__':
-    # app.run(host="127.0.0.1", port=9002, debug=True)
-    socketio.run(app, host="127.0.0.1", port=9002)
+    app.run(host="127.0.0.1", port=9002, debug=False)

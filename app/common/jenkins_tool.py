@@ -10,7 +10,7 @@ session = db.session
 jenkins_server_url = "https://jenkins.zhito.com"
 user_id = "wangshiyuan"
 api_token = "11bdffee022bd22472efdf2ebd99354522"
-server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
+server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token, timeout=10)
 
 # 构建job
 def build(job, parameters):
@@ -28,7 +28,7 @@ def build(job, parameters):
         print('An exception occurred in jenkins build ', str(e), flush=True)
 
 # 更新任务状态
-def update_build_state(data, socketio, type="Api_process"):
+def update_build_state(data, type="Api_process"):
     try:
         update_ids = [] # 更新数据的Id
         for item in data:
@@ -40,10 +40,10 @@ def update_build_state(data, socketio, type="Api_process"):
             auto_test = item[6]
             platform = item[7]
             # 获取jenkins构建信息
-            info = get_build_info(job_name, build_number, build_queue)
-            if info is not None:
+            info = query_build_info(job_name, build_number, build_queue)
+            if info != None:
                 # 单更新url, jenkins_url为空时更新
-                if (info["state"] == 2 and info["jenkins_url"] is not None and (jenkins_url is None or jenkins_url == "")):
+                if (info["state"] == 2 and info["jenkins_url"] != None and (jenkins_url == None or jenkins_url == "")):
                     if type == "Api_process":
                         session.query(Api_process).filter(Api_process.id == id).update({
                             "jenkins_url": info["jenkins_url"]
@@ -87,9 +87,6 @@ def update_build_state(data, socketio, type="Api_process"):
                         if info["state"] == 3:
                             run_auto_test(id)
                     update_ids.append(id) # 记录变化的数据id
-        # 实际有更新数据时通知客户端刷新
-        if len(update_ids) > 0:
-            socketio.emit("update_process", {"ids": update_ids, "type": type}, broadcast=True)
     except Exception as e:
         session.rollback()
         print('An exception occurred at update_build_state ', str(e), flush=True)
@@ -105,7 +102,7 @@ def update_build_state(data, socketio, type="Api_process"):
 #  tips:build之后不能立即查询到build_number,等待时间不确定
 
 # 查询job状态
-def get_build_info(job, build_number, build_queue):
+def query_build_info(job, build_number, build_queue):
     try:
         # 查询job最后一次build的number, 判断当前能否查询到
         last_build_number = server.get_job_info(job)['lastBuild']['number']
@@ -122,7 +119,7 @@ def get_build_info(job, build_number, build_queue):
             # 相等时, 认为是这个build
             if build_queue == build_info["queueId"]:
                 # 未构建结束，更新url
-                if build_info["result"] is None:
+                if build_info["result"] == None:
                     return {
                         "state": 2,
                         "jenkins_url": build_info["url"],
@@ -137,7 +134,7 @@ def get_build_info(job, build_number, build_queue):
                     }
             # 否则认为是下一次构建
             else:
-                return get_build_info(job, build_number + 1, build_queue)
+                return query_build_info(job, build_number + 1, build_queue)
     except Exception as e:
         print('An exception occurred in get_build_info ', str(e), flush=True)
 
@@ -178,9 +175,9 @@ def app_process_log(id):
             state_name = data["state_name"]
             create_time = data["create_time"]
             modulesStr = data["modules"]
-            lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}" if data['lidar'] is not None else ""
-            camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}" if data['camera'] is not None else ""
-            map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}" if data['map'] is not None else ""
+            lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}" if data['lidar'] != None else ""
+            camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}" if data['camera'] != None else ""
+            map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}" if data['map'] != None else ""
             test_result_url = data["test_result_url"]
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
                 modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
@@ -263,7 +260,7 @@ def generator_build_config(project_name, version, build_type, modulesStr, lidar_
         print('An exception occurred in generator_build_config ', str(e), flush=True)
 
 # 定时任务，查询build状态
-def schedule_task(socketio):
+def schedule_task():
     try:
         print("\n", "schedule_task", flush=True)
         # 待更新状态的数据
@@ -275,7 +272,7 @@ def schedule_task(socketio):
                 isouter=True
             ).filter(App_process.state == 2).all()
         session.close()
-        update_build_state(appProcessData, socketio, "App_process")
+        update_build_state(appProcessData, "App_process")
         # 更新自动化测试的进度
         appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number, App_process.build_queue, App_process.version, App_process.confluence_url,
                 func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
@@ -326,8 +323,8 @@ def update_test_build_state(data):
             confluence_url = item[5]
             create_time = item[6]
             # 获取jenkins构建信息
-            info = get_build_info(job_name, build_number, build_queue)
-            if info is not None:
+            info = query_build_info(job_name, build_number, build_queue)
+            if info != None:
                 if info["state"] > 2:
                     # 测试结果url
                     # 将'Integration/HWL4_X86_Integration_Test' ==> 'Integration/job/HWL4_X86_Integration_Test'

@@ -3,9 +3,38 @@ import jenkins
 jenkins_server_url = "https://jenkins.zhito.com"
 user_id = "wangshiyuan"
 api_token = "11bdffee022bd22472efdf2ebd99354522"
-server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token)
-job = "Integration/HWL4_X86"
+server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token, timeout=10)
+job = "Integration/HWL4_AARCH64_PERSONAL"
 
+parameters = {
+    "project": "HWL4_ORIN",
+    "version": "v0.24-test",
+    "build_type": "Release",
+    "user": "admin",
+    "timestamp": "20230712-113013",
+    "config": {
+        "config_parameter": {
+            "url": "git@gitlab.zhito.com:ai/config_parameter.git",
+            "branch": "zhito-sweep"
+        },
+        "truck_parameter": {
+            "url": "git@gitlab.zhito.com:ai/truck_parameter.git",
+            "branch": "main"
+        }
+    },
+    "base": {
+        "message_group": {
+            "url": "git@gitlab.zhito.com:ai/message_group.git",
+            "branch": "zhito-l4-dev"
+        }
+    },
+    "modules": {},
+}
+
+# 构建job
+# build_id = server.build_job(job, parameters)
+# build_id = server.build_job(job)
+# print("\nbuild_id: ", build_id) #16581
 
 # 创建job
 # server.create_job(job, config_xml=config_xml)
@@ -21,9 +50,9 @@ job = "Integration/HWL4_X86"
 # nextBuildNumber = server.get_job_info(job)['nextBuildNumber']
 # print("\nextBuildNumber: ", nextBuildNumber)
 
-# # 构建job
-# build_id = server.build_job("Integration/Sweep_X86_64", parameters={"username": "wangshiyuan", "date": "2023-03-20"})
-# # build_id = server.build_job(job)
+# 构建job
+# build_id = server.build_job(job, parameters)
+# build_id = server.build_job(job)
 # print("\nbuild_id: ", build_id) #16581
 
 # item = server.get_queue_item(number=build_id)
@@ -34,9 +63,9 @@ job = "Integration/HWL4_X86"
 # print("\nbuild_number: ", build_number)
 
 # # 查询build状态及结果
-build_info = server.get_build_info(job, 9, depth=0)
+# build_info = server.get_build_info(job, 9, depth=0)
 # print("\nbuild_info:", build_info["result"], build_info["queueId"], build_info["url"], "\n\n", build_info)
-print("\n\n: ", build_info["duration"], build_info["progress"])
+# print("\n\n: ", build_info["duration"], build_info["progress"])
 
 # # 查询stage
 # stage_info = server.get_build_stages(job, 9)
