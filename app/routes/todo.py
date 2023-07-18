@@ -74,8 +74,9 @@ def search():
         
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
-        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type", "version", "module_name", "creator", 
-        "creator_name", "handler", "handler_name", "handler_phone", "desc", "enable_prompt", "create_time", "update_time", "type_name"], result)
+        data = generateEntries(["id", "type", "process_id", "project", "project_name", "build_type",
+        "version", "module_name", "creator", "creator_name", "handler", "handler_name", "handler_phone", 
+        "desc", "enable_prompt", "create_time", "update_time", "type_name"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -92,8 +93,8 @@ def create_todo(type, process_id, project, build_type, version, creator, desc, m
       for key, value in modules.items():
         # base模块不需要创建待办, 填写过version的不需要创建待办
         if value["type"] != 0 and value["version"] == "":
-            data = Todo(type=type, process_id=process_id, project=project, build_type=build_type, version=version, creator=creator, desc=desc,
-                module_name=key, handler=value["owner"])
+            data = Todo(type=type, process_id=process_id, project=project, build_type=build_type,
+                version=version, creator=creator, desc=desc, module_name=key, handler=value["owner"])
             session.add(data)
             session.commit()
             session.close()

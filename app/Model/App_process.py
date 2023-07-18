@@ -19,6 +19,7 @@ class App_process(db.Model):
     camera = Column(String(200), nullable=True, comment="视觉模型")
     map = Column(String(200), nullable=True, comment="地图数据")
     plan_map = Column(String(200), nullable=True, comment="规划地图数据")
+    lidar_point = Column(String(200), nullable=True, comment="点云地图数据")
     mcu = Column(String(200), nullable=True, comment="mcu数据")
     driver = Column(String(200), nullable=True, comment="驱动数据")
     sdc = Column(String(200), nullable=True, comment="SDC数据")

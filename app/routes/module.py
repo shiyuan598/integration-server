@@ -15,7 +15,8 @@ def checkExist():
         project = request.args.get("project")
         name = request.args.get("name")
         type = request.args.get("type")
-        total = session.query(func.count(Module.id)).filter(and_(Module.project == project, Module.name == name, Module.type == type)).scalar()
+        total = session.query(func.count(Module.id)).filter(and_(
+            Module.project == project, Module.name == name, Module.type == type)).scalar()
         session.close()
         return jsonify({"code": 0, "data": (total == 0), "msg": "成功"})
     except Exception as e:

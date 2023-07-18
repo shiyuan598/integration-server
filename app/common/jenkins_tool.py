@@ -142,10 +142,12 @@ def query_build_info(job, build_number, build_queue):
 def app_process_log(id):
     try:
         # 查询本次构建的参数信息
-        result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type, App_process.jenkins_url, 
-            App_process.artifacts_url, User.username.label("username"), User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
+        result = session.query(Project.name.label("project_name"), App_process.version, App_process.build_type,
+            App_process.jenkins_url, App_process.artifacts_url, User.username.label("username"),
+            User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera, App_process.map, App_process.confluence_url, App_process.test_result_url
+            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera,
+            App_process.map, App_process.confluence_url, App_process.test_result_url
             ).join(
                 Project,
                 App_process.project == Project.id,
@@ -163,8 +165,9 @@ def app_process_log(id):
             ).all()
         session.close()
         if len(result) > 0:
-            data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username", "creator_name",
-            "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path", "lidar", "camera", "map", "confluence_url", "test_result_url"], result)[0]
+            data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username",
+            "creator_name", "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path",
+            "lidar", "camera", "map", "confluence_url", "test_result_url"], result)[0]
             project_name = data["project_name"]
             version = data["version"]
             build_type = data["build_type"]
@@ -274,7 +277,8 @@ def schedule_task():
         session.close()
         update_build_state(appProcessData, "App_process")
         # 更新自动化测试的进度
-        appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number, App_process.build_queue, App_process.version, App_process.confluence_url,
+        appProcessData = session.query(App_process.id, Project.job_name_test, App_process.build_number,
+                App_process.build_queue, App_process.version, App_process.confluence_url,
                 func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
             ).join(
                 Project,
