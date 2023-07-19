@@ -16,6 +16,7 @@ class Project(db.Model):
     map_path = Column(Text, nullable=False, comment="地图数据的存放路径")
     plan_map_path = Column(Text, nullable=False, comment="规划地图数据的存放路径")
     lidar_point_path = Column(Text, nullable=False, comment="点云地图数据的存放路径")
+    webviz_path = Column(Text, nullable=False, comment="webviz的存放路径")
     mcu_path = Column(Text, nullable=False, comment="mcu的存放路径")
     driver_path = Column(Text, nullable=True, comment="驱动的存放路径")
     sdc_path = Column(Text, nullable=True, comment="SDC的存放路径")

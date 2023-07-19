@@ -41,8 +41,8 @@ def search():
 
         # 查询分页数据
         query = session.query(Project.id, Project.name, Project.platform, Project.job_name, 
-                              Project.job_name_p, Project.job_name_test, Project.lidar_path, 
-        Project.camera_path, Project.map_path, Project.plan_map_path, Project.lidar_point_path, Project.mcu_path, 
+        Project.job_name_p, Project.job_name_test, Project.lidar_path, Project.camera_path, Project.map_path,
+        Project.plan_map_path, Project.lidar_point_path, Project.webviz_path, Project.mcu_path, 
         Project.driver_path, Project.sdc_path, Project.owner, User.name.label("owner_name"), Project.desc,
         func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
         func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
@@ -70,7 +70,7 @@ def search():
         result = query.limit(pageSize).offset((pageNo - 1) * pageSize).all()
         session.close()
         data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "job_name_test",
-            "lidar_path", "camera_path", "map_path", "plan_map_path", "lidar_point_path", "mcu_path", "driver_path",
+            "lidar_path", "camera_path", "map_path", "plan_map_path", "lidar_point_path", "webviz_path", "mcu_path", "driver_path",
             "sdc_path", "owner", "owner_name", "desc", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
@@ -85,13 +85,13 @@ def search_all():
         user_name = request.args.get("user_name")
         query = session.query(Project.id, Project.name, Project.platform, Project.job_name, 
         Project.job_name_p, Project.job_name_test, Project.lidar_path, Project.camera_path, Project.map_path, 
-        Project.plan_map_path, Project.lidar_point_path, Project.mcu_path, Project.driver_path, Project.sdc_path,
+        Project.plan_map_path, Project.lidar_point_path, Project.webviz_path, Project.mcu_path, Project.driver_path, Project.sdc_path,
         func.concat(artifactory_base_url, "/", Project.name, "/cicd/").label("artifacts_url"), 
         func.concat(artifactory_base_url, "/", Project.name, "/user/", user_name, "/").label("artifacts_url_p"), Project.owner)
         result = query.all()
         session.close()
         data = generateEntries(["id", "name", "platform", "job_name", "job_name_p", "job_name_test",
-            "lidar_path", "camera_path", "map_path", "plan_map_path", "lidar_point_path", "mcu_path",
+            "lidar_path", "camera_path", "map_path", "plan_map_path", "lidar_point_path", "webviz_path", "mcu_path",
             "driver_path", "sdc_path", "artifacts_url", "artifacts_url_p", "owner"], result)
         return jsonify({"code": 0, "data": data, "msg": "成功"})
     except Exception as e:
@@ -231,6 +231,7 @@ def create():
         map_path = request.json.get("map_path")
         plan_map_path = request.json.get("plan_map_path")
         lidar_point_path = request.json.get("lidar_point_path")
+        webviz_path = request.json.get("webviz_path")
         mcu_path = request.json.get("mcu_path")
         driver_path = request.json.get("driver_path")
         sdc_path = request.json.get("sdc_path")
@@ -238,7 +239,7 @@ def create():
         desc = request.json.get("desc")
         data = Project(name=name, platform=platform,job_name=job_name, job_name_p=job_name_p,
             job_name_test=job_name_test, lidar_path=lidar_path, camera_path=camera_path,
-            map_path=map_path, plan_map_path=plan_map_path, lidar_point_path=lidar_point_path,
+            map_path=map_path, plan_map_path=plan_map_path, lidar_point_path=lidar_point_path, webviz_path=webviz_path,
             mcu_path=mcu_path, driver_path=driver_path, sdc_path=sdc_path, owner=owner, desc=desc)
         session.add(data)
         session.commit()
@@ -263,6 +264,7 @@ def edit():
         map_path = request.json.get("map_path")
         plan_map_path = request.json.get("plan_map_path")
         lidar_point_path = request.json.get("lidar_point_path")
+        webviz_path = request.json.get("webviz_path")
         mcu_path = request.json.get("mcu_path")
         driver_path = request.json.get("driver_path")
         sdc_path = request.json.get("sdc_path")
@@ -279,6 +281,7 @@ def edit():
             "map_path": map_path,
             "plan_map_path": plan_map_path,
             "lidar_point_path": lidar_point_path,
+            "webviz_path": webviz_path,
             "mcu_path": mcu_path,
             "driver_path": driver_path,
             "sdc_path": sdc_path,
