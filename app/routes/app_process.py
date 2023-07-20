@@ -25,6 +25,7 @@ def search():
         orderField = request.args.get("order", "id")
         orderSeq = request.args.get("seq", "descend")
         user_id = int(request.args.get("user_id"))
+        user_role = int(request.args.get("user_role"))
 
         # 获取当前时间和24小时前的时间
         current_time = datetime.now()
@@ -52,16 +53,20 @@ def search():
             App_process.update_time.like("{}%".format(name)),
             Process_state.name.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
-        )).filter( # 查询系统级的集成流程或自己创建的流程
-            or_(App_process.type == 0, App_process.creator == user_id)
-        ).filter(
-            not_(
-                and_(
-                    App_process.state == 4,
-                    App_process.create_time < past_time
+        ))
+        # 非管理员，查询系统级的集成流程或自己创建的流程
+        # 管理员查询所有的流程
+        if user_role != 0:
+            query = query.filter(
+                or_(App_process.type == 0, App_process.creator == user_id)
+            ).filter(
+                not_(
+                    and_(
+                        App_process.state.in_((4, 8)),
+                        App_process.create_time < past_time
+                    )
                 )
             )
-        )
         
         total = query.scalar()
         session.close()
@@ -101,16 +106,20 @@ def search():
             App_process.update_time.like("{}%".format(name)),
             Process_state.name.like("%{}%".format(name)),
             App_process.api_version.like("%{}%".format(name))
-        )).filter( # 查询系统级的集成流程或自己创建的流程
-            or_(App_process.type == 0, App_process.creator == user_id)
-        ).filter(
-            not_(
-                and_(
-                    App_process.state == 4,
-                    App_process.create_time < past_time
+        ))
+        # 非管理员，查询系统级的集成流程或自己创建的流程
+        # 管理员查询所有的流程
+        if user_role != 0:
+            query = query.filter(
+                or_(App_process.type == 0, App_process.creator == user_id)
+            ).filter(
+                not_(
+                    and_(
+                        App_process.state.in_((4, 8)),
+                        App_process.create_time < past_time
+                    )
                 )
             )
-        )
         # 设置排序
         if orderField != "" and orderSeq != "":
             orderField = "app_process." + orderField
