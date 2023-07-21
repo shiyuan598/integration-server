@@ -1,16 +1,16 @@
 import json
 from atlassian import Confluence
+from config.setting import CONFLUENCE
 
-url = "https://confluence.zhito.com:8090"
-username = "wangshiyuan"
-password = "zhito26@#"
-space = "ITD"
-parent_page_id = 56111727
-parent_page_id_app = 56114852
-parent_page_id_api = 56114855
+url = CONFLUENCE["url"]
+username = CONFLUENCE["username"]
+password = CONFLUENCE["password"]
+space = CONFLUENCE["space"]
+parent_page_id = CONFLUENCE["parent_page_id"]
+parent_page_id_app = CONFLUENCE["parent_page_id_app"]
+parent_page_id_api = CONFLUENCE["parent_page_id_api"]
 
 confluence = Confluence(url=url, username=username, password=password)
-
 
 # 创建页面
 def create_page(title, content="", space="ITD", parent_page_id=56111727):

@@ -3,13 +3,14 @@ import jenkins
 from Model import Api_process, App_process, Project, Process_state, User
 from sqlalchemy import func, text, and_
 from exts import db
+from config.setting import JENKINS
 from common.utils import generateEntries, get_url_param_value
 from .confluence_tool import create_page, get_or_create_page_by_title, append_page_by_id
 session = db.session
 
-jenkins_server_url = "https://jenkins.zhito.com"
-user_id = "wangshiyuan"
-api_token = "11bdffee022bd22472efdf2ebd99354522"
+jenkins_server_url = JENKINS["jenkins_server_url"]
+user_id = JENKINS["user_id"]
+api_token = JENKINS["api_token"]
 server=jenkins.Jenkins(jenkins_server_url, username=user_id, password=api_token, timeout=10)
 
 # 构建job

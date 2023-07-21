@@ -1,8 +1,7 @@
 from pyartifactory import Artifactory
-
-url = "https://artifactory.zhito.com/artifactory"
-username = "wangshiyuan"
-api_key = "AKCp8nzqQaRKVZGfYHimkQh9FK3FHq2mkaaRtgJZhjaeYL71aUXU3RTJbFBjNTT9CqNoMTdru"
+from config.setting import ARTIFACTS
+# 获取配置
+url, username, api_key = ARTIFACTS["url"], ARTIFACTS["username"], ARTIFACTS["api_key"]
 
 art = Artifactory(url=url, auth=(username, api_key), api_version=1)
 

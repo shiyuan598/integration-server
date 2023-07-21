@@ -1,10 +1,10 @@
 import gitlab
+from config.setting import GITLAB
 
 # 参考：https://python-gitlab.readthedocs.io/en/stable/gl_objects/projects.html
 # https://gitlab.zhito.com/api/v4/projects REST Url 
 
-url = "https://gitlab.zhito.com"
-token = "7c5ohyqs1pzL6873cxjd"
+url, token = GITLAB["url"], GITLAB["token"]
 gl = gitlab.Gitlab(url=url, private_token=token)
 
 # 查询一个项目的所有分支

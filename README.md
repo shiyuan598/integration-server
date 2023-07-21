@@ -79,6 +79,12 @@ export LANG=C.UTF-8
 2.python-jenkins: https://python-jenkins.readthedocs.io/en/latest/api.html#jenkins.Jenkins.get_queue_item
 3.confluence: https://docs.atlassian.com/ConfluenceServer/rest/7.8.1/#api/content-createContent
 
+1.artifactory api key
+user - set me up - configure [password] - resolve
+2.jenkins api token
+user - 设置 - api token
+3.gitlab token
+user - preferences - access tokens
 
 ##### rest url
 https://jira.zhito.com:8080/rest/api/2/issue/GSL3P-2986
