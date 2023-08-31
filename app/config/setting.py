@@ -37,6 +37,7 @@ JENKINS = {
 # Redis配置
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6378
+REDIS_PWD = ''
 # 短信通知
 SMS_ENABLE = False
 # 项目配置

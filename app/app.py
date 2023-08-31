@@ -1,5 +1,4 @@
 # coding=utf8
-import fcntl
 import os
 import datetime
 from flask import Flask, request, jsonify
@@ -11,6 +10,7 @@ from routes.blueprint import registerRoute
 from routes.user import check_token
 from apscheduler.schedulers.background import BackgroundScheduler
 from common.jenkins_tool import schedule_task
+from common.redis_tool import redis as redis_conn
 from flask_migrate import Migrate
 import sys
 import io
@@ -88,32 +88,36 @@ def init_scheduler():
     scheduler.add_job(run_schedule_task, "interval", seconds=20)
     scheduler.start()
 
+# 获取分布式锁
+def acquire_lock():
+    return redis_conn.set(lock_key, os.getpid(), nx=True, ex=60)
+
 # 定义文件路径和锁文件路径
 file_path = 'schedule_task.file'
-lock_path = 'schedule_task.lock'
-# 检查锁文件是否存在，如果不存在则创建
-if not os.path.exists(lock_path):
-    with open(lock_path, 'w') as f:
-        pass
+lock_key = 'schedule_task_lock'
 
-# 打开文件锁
-with open(lock_path, 'r') as lock_file:
-    # 获取文件锁
-    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+# 释放分布式锁
+def release_lock():
+    redis_conn.delete(lock_key)
 
-    # 检查任务文件是否存在，如果不存在则执行任务
-    if not os.path.exists(file_path):
-        print(f"\n 任务文件不存在, 初始化定时任务！", flush=True)
-        # 执行定时任务
-        init_scheduler()
-        # 创建任务文件
-        with open(file_path, 'w') as task_file:
-            task_file.write(str(os.getpid()))
-    else:
-        print(f"\n 任务文件已存在, 不再进行定时任务初始化！", flush=True)
-    # 释放文件锁
-    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
-
+# 尝试获取分布式锁
+if acquire_lock():
+    try:
+        # 检查任务文件是否存在，如果不存在则执行任务
+        if not os.path.exists(file_path):
+            print(f"\n 任务文件不存在, 初始化定时任务！", flush=True)
+            # 执行定时任务
+            init_scheduler()
+            # 创建任务文件
+            with open(file_path, 'w') as task_file:
+                task_file.write(str(os.getpid()))
+        else:
+            print(f"\n 任务文件已存在, 不再进行定时任务初始化！", flush=True)
+    finally:
+        # 释放分布式锁
+        release_lock()
+else:
+    print("Another process is already running the task.", flush=True)
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=9002, debug=False)
+    app.run(host="0.0.0.0", port=9002, debug=False)

@@ -1,7 +1,7 @@
 from redis import Redis
-from config.setting import REDIS_HOST, REDIS_PORT
+from config.setting import REDIS_HOST, REDIS_PORT, REDIS_PWD
 
-redis = Redis(host=REDIS_HOST, port=REDIS_PORT)
+redis = Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PWD)
 
 def redis_get(key):
     try:
