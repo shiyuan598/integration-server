@@ -1,6 +1,6 @@
 # coding=utf8
 # MySQL配置
-MYSQL_HOST = 'localhost'
+MYSQL_HOST = '172.16.12.84'
 MYSQL_PORT = '3307'
 MYSQL_USER = 'root'
 MYSQL_PASSWD = '123456'

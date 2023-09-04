@@ -80,9 +80,9 @@ def search():
             User.name.label("creator_name"), App_process.modules, App_process.state,
             Process_state.name.label("state_name"), App_process.type, App_process.desc, 
             Project.name.label("project_name"), Project.lidar_path, Project.camera_path, Project.map_path, Project.plan_map_path,
-            Project.lidar_point_path, Project.webviz_path, Project.mcu_path, Project.driver_path, Project.sdc_path,
+            Project.lidar_point_path, Project.webviz_path, Project.testset_path, Project.mcu_path, Project.driver_path, Project.sdc_path,
             App_process.lidar, App_process.camera, App_process.map, App_process.plan_map,
-            App_process.lidar_point, App_process.webviz, App_process.mcu, App_process.driver, App_process.sdc, App_process.auto_test,
+            App_process.lidar_point, App_process.webviz, App_process.testset, App_process.mcu, App_process.driver, App_process.sdc, App_process.auto_test,
             func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
             func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S')
         ).join(
@@ -134,8 +134,8 @@ def search():
             "jenkins_url", "artifacts_url", "confluence_url", "test_result_url", "creator",
             "creator_name", "modules", "state", "state_name", "type", "desc", 
             "project_name", "lidar_path", "camera_path", "map_path", "plan_map_path",
-            "lidar_point_path", "webviz_path", "mcu_path", "driver_path", "sdc_path", "lidar", "camera",
-            "map", "plan_map", "lidar_point", "webviz", "mcu", "driver", "sdc", "auto_test", "create_time", "update_time"], result)
+            "lidar_point_path", "webviz_path", "testset_path", "mcu_path", "driver_path", "sdc_path", "lidar", "camera",
+            "map", "plan_map", "lidar_point", "webviz", "testset", "mcu", "driver", "sdc", "auto_test", "create_time", "update_time"], result)
         return jsonify({"code": 0, "data": data, "pagination": {"total": total, "current": pageNo, "pageSize": pageSize}, "msg": "成功"})
     except Exception as e:
         session.rollback()
@@ -178,6 +178,7 @@ def create():
         plan_map = request.json.get("plan_map")
         lidar_point = request.json.get("lidar_point")
         webviz = request.json.get("webviz")
+        testset = request.json.get("testset")
         mcu = request.json.get("mcu")
         driver = request.json.get("driver")
         sdc = request.json.get("sdc")
@@ -187,7 +188,7 @@ def create():
         state = int(request.json.get("state"))
         data = App_process(project=project, version=version, build_type=build_type,
             auto_test=auto_test, job_name=job_name, lidar=lidar, camera=camera, map=map,
-            plan_map=plan_map, lidar_point=lidar_point, webviz=webviz, mcu=mcu, driver=driver, sdc=sdc,
+            plan_map=plan_map, lidar_point=lidar_point, webviz=webviz, testset=testset, mcu=mcu, driver=driver, sdc=sdc,
             modules=modules, creator=creator, type=type, artifacts_url=artifacts_url, state=state, desc=desc)
         session.add(data)
         session.flush()
@@ -224,6 +225,7 @@ def edit():
         plan_map = request.json.get("plan_map")
         lidar_point = request.json.get("lidar_point")
         webviz = request.json.get("webviz")
+        testset = request.json.get("testset")
         mcu = request.json.get("mcu")
         driver = request.json.get("driver")
         sdc = request.json.get("sdc")
@@ -244,6 +246,7 @@ def edit():
             "map": map,
             "plan_map": plan_map,
             "lidar_point": lidar_point,
+            "testset": testset,
             "webviz": webviz,
             "mcu": mcu,
             "driver": driver,

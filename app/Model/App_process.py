@@ -21,6 +21,7 @@ class App_process(db.Model):
     plan_map = Column(String(200), nullable=True, comment="规划地图数据")
     lidar_point = Column(String(200), nullable=True, comment="点云地图数据")
     webviz = Column(String(200), nullable=True, comment="webviz")
+    testset = Column(String(200), nullable=True, comment="测试集")
     mcu = Column(String(200), nullable=True, comment="mcu数据")
     driver = Column(String(200), nullable=True, comment="驱动数据")
     sdc = Column(String(200), nullable=True, comment="SDC数据")
