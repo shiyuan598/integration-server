@@ -147,8 +147,10 @@ def app_process_log(id):
             App_process.jenkins_url, App_process.artifacts_url, User.username.label("username"),
             User.name.label("creator_name"), App_process.modules, Process_state.name.label("state_name"), 
             App_process.desc, func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            Project.lidar_path, Project.camera_path, Project.map_path, App_process.lidar, App_process.camera,
-            App_process.map, App_process.confluence_url, App_process.test_result_url
+            Project.lidar_path, Project.camera_path, Project.map_path, Project.driver_path, Project.sdc_path, Project.plan_map_path,
+            Project.mcu_path, Project.lidar_point_path, Project.testset_path,  App_process.lidar, App_process.camera, App_process.map,
+            App_process.driver, App_process.sdc, App_process.plan_map, App_process.mcu, App_process.lidar_point, App_process.testset,
+            App_process.confluence_url, App_process.test_result_url
             ).join(
                 Project,
                 App_process.project == Project.id,
@@ -165,10 +167,12 @@ def app_process_log(id):
                 and_(App_process.type == 0, App_process.id == id)
             ).all()
         session.close()
+    
         if len(result) > 0:
             data = generateEntries(["project_name", "version", "build_type", "jenkins_url", "artifacts_url", "username",
-            "creator_name", "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path",
-            "lidar", "camera", "map", "confluence_url", "test_result_url"], result)[0]
+            "creator_name", "modules", "state_name", "desc", "create_time", "lidar_path", "camera_path", "map_path", "driver_path",
+            "sdc_path", "plan_map_path", "mcu_path", "lidar_point_path", "testset_path", "lidar", "camera", "map",
+            "driver", "sdc", "plan_map", "mcu", "lidar_point", "testset", "confluence_url", "test_result_url"], result)[0]
             project_name = data["project_name"]
             version = data["version"]
             build_type = data["build_type"]
@@ -182,9 +186,18 @@ def app_process_log(id):
             lidar_model = f"{data['lidar_path'].rstrip('/')}/{ data['lidar'].lstrip('/')}" if data['lidar'] != None else ""
             camera_model = f"{data['camera_path'].rstrip('/')}/{ data['camera'].lstrip('/')}" if data['camera'] != None else ""
             map_data = f"{data['map_path'].rstrip('/')}/{ data['map'].lstrip('/')}" if data['map'] != None else ""
+            driver_data = f"{data['driver_path'].rstrip('/')}/{ data['driver'].lstrip('/')}" if data['driver'] != None else ""
+            sdc_data = f"{data['sdc_path'].rstrip('/')}/{ data['sdc'].lstrip('/')}" if data['sdc'] != None else ""
+            plan_map_data = f"{data['plan_map_path'].rstrip('/')}/{ data['plan_map'].lstrip('/')}" if data['plan_map'] != None else ""
+            mcu_data = f"{data['mcu_path'].rstrip('/')}/{ data['mcu'].lstrip('/')}" if data['mcu'] != None else ""
+            lidar_point_data = f"{data['lidar_point_path'].rstrip('/')}/{ data['lidar_point'].lstrip('/')}" if data['lidar_point'] != None else ""
+            mcu_data = f"{data['mcu_path'].rstrip('/')}/{ data['mcu'].lstrip('/')}" if data['mcu'] != None else ""
+            testset_data = f"{data['testset_path'].rstrip('/')}/{ data['testset'].lstrip('/')}" if data['testset'] != None else ""
+
             test_result_url = data["test_result_url"]
             module_config = generator_build_config(project_name=project_name, version=version, build_type=build_type,
-                modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data)
+                modulesStr=modulesStr, lidar_model=lidar_model, camera_model=camera_model, map_data=map_data, driver_data=driver_data,
+                sdc_data=sdc_data, plan_map_data=plan_map_data, lidar_point_data=lidar_point_data, mcu_data=mcu_data, testset_data=testset_data)
             # 获取父页面id
             parent_page_id = get_or_create_page_by_title(project_name + "【应用】", type="App_process")
             # 标题
@@ -223,7 +236,8 @@ def app_process_log(id):
         print('An exception occurred in app_process_log ', str(e), flush=True)
 
 # 生成构建的配置参数
-def generator_build_config(project_name, version, build_type, modulesStr, lidar_model, camera_model, map_data):
+def generator_build_config(project_name, version, build_type, modulesStr, lidar_model, camera_model, map_data, driver_data, 
+            sdc_data, plan_map_data, lidar_point_data, mcu_data, testset_data):
     try:
         modules = json.loads(modulesStr)
         config = {}
@@ -255,6 +269,11 @@ def generator_build_config(project_name, version, build_type, modulesStr, lidar_
             "lidar_model": lidar_model,
             "camera_model": camera_model,
             "map_data": map_data,
+            "driver_data": driver_data,
+            "sdc_data": sdc_data,
+            "plan_map_data": plan_map_data,
+            "lidar_point_data": lidar_point_data, "mcu_data": mcu_data,
+            "testset_data": testset_data,
             "config": config,
             "base": base,
             "modules": common
