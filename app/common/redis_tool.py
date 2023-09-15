@@ -1,7 +1,10 @@
 from redis import Redis
 from config.setting import REDIS_HOST, REDIS_PORT, REDIS_PWD
 
-redis = Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PWD)
+try:
+   redis = Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PWD)
+except Exception as e:
+    print('An exception occurred in redis init: ', str(e), flush=True)
 
 def redis_get(key):
     try:

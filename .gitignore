@@ -10,6 +10,8 @@ nohup.out
 *.lock
 schedule_task.file
 schedule_task.lock
+/app/git_temp
+/app/temp
 
 /build
 venv_dir

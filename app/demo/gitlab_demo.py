@@ -2,9 +2,10 @@ import gitlab
 
 # 参考：https://python-gitlab.readthedocs.io/en/stable/gl_objects/projects.html
 # https://gitlab.zhito.com/api/v4/projects REST Url 
-
+# git@gitlab.zhito.com:planning/planning.git
 url = "https://gitlab.zhito.com"
 token = "7c5ohyqs1pzL6873cxjd"
+# url = "git@gitlab.zhito.com:wangshiyuan/vehicle-resource-server.git"
 gl = gitlab.Gitlab(url=url, private_token=token)
 
 # # 列出所有项目，使用namespace搜索
