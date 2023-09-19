@@ -1,6 +1,6 @@
 # coding=utf8
 # MySQL配置
-MYSQL_HOST = '172.16.12.84'
+MYSQL_HOST = 'localhost'
 MYSQL_PORT = '3307'
 MYSQL_USER = 'root'
 MYSQL_PASSWD = '123456'
@@ -22,11 +22,6 @@ CONFLUENCE = {
     "parent_page_id": 56111727,
     "parent_page_id_app": 56114852,
     "parent_page_id_api": 56114855
-}
-# gitlab配置
-GITLAB = {
-    "url": "https://gitlab.zhito.com",
-    "token": "7c5ohyqs1pzL6873cxjd"
 }
 # jenkins配置
 JENKINS = {

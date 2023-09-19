@@ -15,7 +15,7 @@ def getAllFiles(path):
             files.append(file.uri)
         return files
     except Exception as e:
-        print('An exception occurred in artifactory getAllFiles', str(e), flush=True)
+        print('An exception occurred in artifactory getAllFiles', path, str(e), flush=True)
 
 # 查询一个目录下的所有目录
 def getAllFolders(path):
@@ -28,7 +28,7 @@ def getAllFolders(path):
                 files.append(file.uri)
         return files
     except Exception as e:
-        print('An exception occurred in artifactory getAllFiles', str(e), flush=True)
+        print('An exception occurred in artifactory getAllFolders', path, str(e), flush=True)
         
 # 查询一个目录访问地址
 def getUri(path):

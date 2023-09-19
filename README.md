@@ -92,3 +92,8 @@ https://confluence.zhito.com:8090/rest/api/space/JSZSZX
 https://gitlab.zhito.com/api/v4/projects
 https://artifactory.zhito.com/artifactory/api/repositories
 https://jenkins.zhito.com/api/
+
+
+#### change log
+1.2023-09-19使用ssh方式获取代码的branch\tag
+    涉及文件：app/common/gitlab_tool.py、app/routes/tools.py

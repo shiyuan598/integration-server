@@ -37,8 +37,8 @@ def tag():
 def branch_tag():
     try:
         # 获取参数：
-        projects = request.args.getlist("projects")
-        project_names = projects[0].split(",")
+        repo_urls = request.args.getlist("repoUrls")
+        repo_url_arr = repo_urls[0].split(",")
         use_cache = request.args.get("cache", "true")
 
         # 从redis缓存中查询
@@ -46,18 +46,18 @@ def branch_tag():
         nocache_result = {} # 通过接口查询的值
         nocache_project = [] # 缓存中没有值的项目名称
         if use_cache == "true":
-            for project_name in project_names:
-                cache_data = redis_get(project_name)
+            for repo_url in repo_url_arr:
+                cache_data = redis_get(repo_url)
                 if cache_data != None:
                     # 缓存中有就使用缓存数据
-                    cache_result[project_name] = json.loads(cache_data.decode("utf-8"))
-                    print(f"\n从**缓存**中获取到{project_name}的数据\n")
+                    cache_result[repo_url] = json.loads(cache_data.decode("utf-8"))
+                    print(f"\n从**缓存**中获取到{repo_url}的数据\n")
                 else:
                     # 缓存中没有就记录下项目名称一起查询
-                    print(f"\n从**接口**中查询{project_name}的数据\n")
-                    nocache_project.append(project_name)
+                    print(f"\n从**接口**中查询{repo_url}的数据\n")
+                    nocache_project.append(repo_url)
         else:
-            nocache_project = project_names
+            nocache_project = repo_url_arr
         # 没有缓存的就通过api查询，并更新到缓存中
         if len(nocache_project) > 0:
             nocache_result = multiGetBranchesTags(nocache_project)
