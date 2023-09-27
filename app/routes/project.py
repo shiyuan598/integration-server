@@ -44,8 +44,8 @@ def search():
         Project.job_name_p, Project.job_name_test, Project.lidar_path, Project.camera_path, Project.map_path,
         Project.plan_map_path, Project.lidar_point_path, Project.webviz_path, Project.testset_path, Project.mcu_path, 
         Project.driver_path, Project.sdc_path, Project.owner, User.name.label("owner_name"), Project.desc,
-        func.date_format(func.date_add(Project.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(Project.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
+        func.date_format(Project.create_time, '%Y-%m-%d %H:%i'),
+        func.date_format(Project.update_time, '%Y-%m-%d %H:%i')
         ).join(
             User,
             User.id == Project.owner,
@@ -133,8 +133,8 @@ def modules(project_id):
                 (Module.type == 2, "应用"),
                 (Module.type == 3, "配置")
         ).label("type_name"),
-        func.date_format(func.date_add(Module.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(Module.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i')
+        func.date_format(Module.create_time, '%Y-%m-%d %H:%i'),
+        func.date_format(Module.update_time, '%Y-%m-%d %H:%i')
         ).join(
             User,
             User.id == Module.owner,

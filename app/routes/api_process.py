@@ -34,8 +34,8 @@ def search():
         query = session.query(Api_process.id, Api_process.project, Api_process.build_type, Api_process.version, Api_process.release_note,
         Api_process.job_name, Api_process.build_queue, Api_process.build_number, Api_process.jenkins_url, Api_process.artifacts_url, Api_process.confluence_url,
         Api_process.creator, User.name.label("creator_name"), Api_process.modules, Api_process.state, Process_state.name.label("state_name"), Api_process.desc, Project.name.label("project_name"),
-        func.date_format(func.date_add(Api_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-        func.date_format(func.date_add(Api_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+        func.date_format(Api_process.create_time, '%Y-%m-%d %H:%i'),
+        func.date_format(Api_process.update_time, '%Y-%m-%d %H:%i'),
         ).join(
             Project,
             Api_process.project == Project.id,

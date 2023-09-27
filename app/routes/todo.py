@@ -41,8 +41,8 @@ def search():
             Todo.build_type, Todo.version, Todo.module_name, Todo.creator, S.name.label("creator_name"), Todo.handler, 
             T.name.label("handler_name"), T.telephone.label("handler_phone"), Todo.desc, 
             (func.TIMESTAMPDIFF(text("MINUTE"), Todo.prompt_time, func.now()) > 60).label("enable_prompt"),
-            func.date_format(func.date_add(Todo.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
-            func.date_format(func.date_add(Todo.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i'),
+            func.date_format(Todo.create_time, '%Y-%m-%d %H:%i'),
+            func.date_format(Todo.update_time, '%Y-%m-%d %H:%i'),
             case(
                 (Todo.type == 0, "接口集成"),
                 (Todo.type == 1, "应用集成")

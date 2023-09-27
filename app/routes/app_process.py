@@ -83,8 +83,8 @@ def search():
             Project.lidar_point_path, Project.webviz_path, Project.testset_path, Project.mcu_path, Project.driver_path, Project.sdc_path,
             App_process.lidar, App_process.camera, App_process.map, App_process.plan_map,
             App_process.lidar_point, App_process.webviz, App_process.testset, App_process.mcu, App_process.driver, App_process.sdc, App_process.auto_test,
-            func.date_format(func.date_add(App_process.create_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S'),
-            func.date_format(func.date_add(App_process.update_time, text("INTERVAL 8 Hour")), '%Y-%m-%d %H:%i:%S')
+            func.date_format(App_process.create_time, '%Y-%m-%d %H:%i:%S'),
+            func.date_format(App_process.update_time, '%Y-%m-%d %H:%i:%S')
         ).join(
             Project,
             App_process.project == Project.id,
