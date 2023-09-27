@@ -1,4 +1,4 @@
-FROM dp-harbor.zhito.com/dp-aishop/digital_platform/fe/integration-dev:dev
+FROM dp-harbor.zhito.com/vehicle/integration-server:20230915
 
 WORKDIR /app
 
