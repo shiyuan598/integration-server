@@ -12,4 +12,4 @@ RUN python3.10 -m pip install -r requirements.txt --index https://pypi.tuna.tsin
 RUN python3.10 -m flask db upgrade
 
 # 启动 Gunicorn 服务器
-CMD ["./start_dev.sh"]
+CMD ["./start_gunicorn.sh"]
