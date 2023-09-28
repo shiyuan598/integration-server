@@ -1,4 +1,4 @@
-FROM nginx_python3.10_node14_redis4
+FROM dp-harbor.zhito.com/vehicle/integration-server:20230915
 
 # 安装 Git
 RUN apt-get update && apt-get install -y git
