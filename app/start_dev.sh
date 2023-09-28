@@ -5,4 +5,4 @@ if [ $? -eq 0 ]; then
   echo "文件已删除";
 fi
 export FLASK_ENV=development
-python app.py
+python3.10 app.py

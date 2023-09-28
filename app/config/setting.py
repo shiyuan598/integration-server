@@ -44,15 +44,15 @@ MYSQL_DB = 'integration'
 # 开发环境配置
 if os.environ.get('FLASK_ENV') == 'development':
     # Redis配置
-    REDIS_HOST = '127.0.0.1'
-    REDIS_PORT = 6378
-    REDIS_PWD = ''
+    REDIS_HOST = '172.16.20.224'
+    REDIS_PORT = 6379
+    REDIS_PWD = 'zhito123456'
 
     # MySQL配置
-    MYSQL_HOST = 'localhost'
-    MYSQL_PORT = '3307'
-    MYSQL_USER = 'root'
-    MYSQL_PASSWD = '123456'
+    MYSQL_HOST = '172.16.20.224'
+    MYSQL_PORT = '3306'
+    MYSQL_USER = 'biz-zhito'
+    MYSQL_PASSWD = '123456$'
     MYSQL_DB = 'integration'
 
 # 项目配置
