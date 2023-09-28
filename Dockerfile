@@ -14,6 +14,8 @@ RUN python3.10 -m pip install -r requirements.txt --index https://pypi.tuna.tsin
 # # 执行 Flask 数据库迁移
 RUN python3.10 -m flask db upgrade
 
+EXPOSE 9021
+
 # 启动 Gunicorn 服务器
 CMD ["./start_dev.sh"]
 # CMD ["./start_prod.sh"]

@@ -74,6 +74,17 @@ alembic_version的版本号，可以根据需要设置最后的版本以便能�
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
+### 生产部署
+1.构建镜像
+```
+docker build -t server .
+```
+2.运行docker
+```
+docker run -d --name server -p 9021:9021 server
+```
+
+
 ##### 文档
 1.python-gitlab: https://python-gitlab.readthedocs.io/en/stable/gl_objects/branches.html
 2.python-jenkins: https://python-jenkins.readthedocs.io/en/latest/api.html#jenkins.Jenkins.get_queue_item
