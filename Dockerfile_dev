@@ -17,4 +17,4 @@ RUN python3.10 -m flask db upgrade
 EXPOSE 9021
 
 # 启动 Gunicorn 服务器
-CMD ["./start_prod.sh"]
+CMD ["./start_dev.sh"]
