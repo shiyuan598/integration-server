@@ -2,7 +2,7 @@
 # 工具接口，gitlab/jenkins/artifactory/confluence
 import datetime, json
 from flask import Blueprint, request, jsonify
-from common.gitlab_tool import getAllBranches, getAllTags, multiGetBranchesTags
+from common.gitlab_api import getAllBranches, getAllTags, multiGetBranchesTags
 from common.jenkins_tool import build
 from common.artifactory_tool import getAllFiles, getAllFolders, getUri
 from common.redis_tool import redis_get, redis_set

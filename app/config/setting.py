@@ -26,6 +26,12 @@ JENKINS = {
     "api_token": "11bdffee022bd22472efdf2ebd99354522"
 }
 
+# gitlab配置
+GITLAB = {
+    "url": "https://gitlab.zhito.com",
+    "token": "7c5ohyqs1pzL6873cxjd"
+}
+
 # 短信通知
 SMS_ENABLE = False
 

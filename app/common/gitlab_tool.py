@@ -65,5 +65,5 @@ def get_branches_tags(repoUrl):
             "tag": tags
         }
     except Exception as e:
-            print('An exception occurred in gitlab get_branches_tags', str(e), flush=True)
+            print('An exception occurred in gitlab get_branches_tags', repoUrl, str(e), flush=True)
             return None
