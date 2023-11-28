@@ -84,8 +84,8 @@ def run_schedule_task():
 
 def init_scheduler():
     print(f"\n\n初始化定时任务\n", flush=True)
-    scheduler = BackgroundScheduler(max_instances=10)
-    scheduler.add_job(run_schedule_task, "interval", seconds=60)
+    scheduler = BackgroundScheduler(max_instances=5)
+    scheduler.add_job(run_schedule_task, "interval", seconds=120)
     scheduler.start()
 
 # 获取分布式锁
