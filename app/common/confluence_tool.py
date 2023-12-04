@@ -15,6 +15,12 @@ confluence = Confluence(url=url, username=username, password=password)
 # 创建页面
 def create_page(title, content="", space="ITD", parent_page_id=56111727):
     try:
+        page = confluence.get_page_by_title(space=space,
+                                            title=title,
+                                            expand='body.storage')
+        if page != None:
+            print(f'{title} 已存在，无法创建！', flush=True)
+            return {"url": ""}
         new_page = confluence.create_page(space=space,
                                           title=title,
                                           body=content,
