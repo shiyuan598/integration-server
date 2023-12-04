@@ -13,6 +13,8 @@ rm -f schedule_task* ;
 if [ $? -eq 0 ]; then
   echo "文件已删除";
 fi
+# 等待上一步完成
+wait
 
 # 3.运行程序
 python3.10 -m gunicorn -c gunicorn.conf app:app
